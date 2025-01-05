@@ -52,6 +52,7 @@ jobs:
 
       - uses: swatinem/rust-cache@v2
       - run: cargo fetch
+        working-directory: src-tauri
 
       - uses: tauri-apps/tauri-action@v0
         env:
