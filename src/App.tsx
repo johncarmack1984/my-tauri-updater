@@ -1,7 +1,13 @@
+import { useEffect } from "react";
 import "./App.css";
-import "./update";
 
 function App() {
+  useEffect(() => {
+    const update = async () => {
+      await import("./update");
+    };
+    update();
+  }, []);
   return <>app</>;
 }
 
