@@ -9,6 +9,7 @@ use tauri::Manager;
 #[cfg(desktop)]
 mod app_updates {
     use serde::Serialize;
+    use specta::Type;
     use std::sync::Mutex;
     use tauri::{ipc::Channel, AppHandle, State};
     use tauri_plugin_updater::{Update, UpdaterExt};
@@ -32,7 +33,7 @@ mod app_updates {
 
     type Result<T> = std::result::Result<T, Error>;
 
-    #[derive(Clone, Serialize)]
+    #[derive(Clone, Serialize, Type)]
     #[serde(tag = "event", content = "data")]
     pub enum DownloadEvent {
         #[serde(rename_all = "camelCase")]
@@ -46,15 +47,15 @@ mod app_updates {
         Finished,
     }
 
-    #[derive(Serialize)]
+    #[derive(Serialize, Type)]
     #[serde(rename_all = "camelCase")]
     pub struct UpdateMetadata {
         version: String,
         current_version: String,
     }
 
-    // #[specta::specta]
     #[tauri::command]
+    // #[specta::specta]
     pub async fn fetch_update(
         app: AppHandle,
         pending_update: State<'_, PendingUpdate>,
@@ -83,8 +84,8 @@ mod app_updates {
         Ok(update_metadata)
     }
 
-    // #[specta::specta]
     #[tauri::command]
+    // #[specta::specta]
     pub async fn install_update(
         pending_update: State<'_, PendingUpdate>,
         on_event: Channel<DownloadEvent>,
@@ -114,6 +115,7 @@ mod app_updates {
         Ok(())
     }
 
+    // #[derive(Clone, Serialize, Type)]
     pub struct PendingUpdate(pub Mutex<Option<Update>>);
 }
 

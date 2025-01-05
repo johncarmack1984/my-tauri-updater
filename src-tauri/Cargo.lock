@@ -2170,6 +2170,7 @@ dependencies = [
  "serde_json",
  "specta",
  "specta-typescript",
+ "specta-util",
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
@@ -2178,6 +2179,7 @@ dependencies = [
  "tauri-plugin-updater",
  "tauri-specta",
  "thiserror 2.0.9",
+ "tokio",
 ]
 
 [[package]]
@@ -3645,6 +3647,7 @@ dependencies = [
  "paste",
  "specta-macros",
  "thiserror 1.0.69",
+ "tokio",
 ]
 
 [[package]]
