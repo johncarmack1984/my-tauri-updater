@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { createTauRPCProxy } from "./bindings";
+import { useState } from "react";
 import "./App.css";
+import { useQuery } from "@tanstack/react-query";
 // import { check } from "@tauri-apps/plugin-updater";
 // import { relaunch } from "@tauri-apps/plugin-process";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+
 function App() {
   // useEffect(() => {
   //   const checkUpdate = async () => {
@@ -39,6 +42,11 @@ function App() {
   //   checkUpdate();
   // }, []);
 
+  const { data: taurpc } = useQuery({
+    queryKey: ["taurpc"],
+    queryFn: createTauRPCProxy,
+  });
+
   const [fetchedUpdate, setFetchedUpdate] = useState<boolean>(false);
   const [installingUpdate, setInstallingUpdate] = useState<unknown>(null);
   const [update, setUpdate] = useState<unknown>(null);
@@ -46,7 +54,8 @@ function App() {
   const checkForUpdate = async () => {
     try {
       setFetchedUpdate(true);
-      const update = await invoke("fetch_update");
+      // const update = await invoke("fetch_update");
+      const update = await taurpc?.fetch_update();
       console.log(update);
       setUpdate(update);
     } catch (error) {
@@ -55,14 +64,10 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    const unlisten = listen("install_update", (event) => {
-      setInstallingUpdate(event);
-    });
-    return () => {
-      unlisten.then((unlisten) => unlisten());
-    };
-  }, []);
+  const installUpdate = async (_evt: React.MouseEvent<HTMLButtonElement>) => {
+    // setInstallingUpdate(await invoke("install_update"));
+    setInstallingUpdate(await taurpc?.install_update(null));
+  };
 
   return (
     <div className="container">
@@ -71,9 +76,9 @@ function App() {
         <button type="button" onClick={checkForUpdate}>
           check for update
         </button>
-        {/* <button type="button" onClick={installUpdate}>
+        <button type="button" onClick={installUpdate}>
           install update
-        </button> */}
+        </button>
       </div>
       <div className="row">
         <div>Fetched ?{fetchedUpdate ? <>✅</> : <></>}</div>
