@@ -54,7 +54,6 @@ function App() {
   const checkForUpdate = async () => {
     try {
       setFetchedUpdate(true);
-      // const update = await invoke("fetch_update");
       const update = await taurpc?.fetch_update();
       console.log(update);
       setUpdate(update);
@@ -65,34 +64,49 @@ function App() {
   };
 
   const installUpdate = async (_evt: React.MouseEvent<HTMLButtonElement>) => {
-    // setInstallingUpdate(await invoke("install_update"));
-    setInstallingUpdate(await taurpc?.install_update(null));
+    setInstallingUpdate(
+      await taurpc?.install_update((evt) => {
+        console.log("event update", evt);
+      })
+    );
   };
 
   return (
     <div className="container">
       <h1>my-tauri-updater</h1>
-      <div className="row">
+      <div className="buttons row">
         <button type="button" onClick={checkForUpdate}>
           check for update
         </button>
-        <button type="button" onClick={installUpdate}>
+        <button
+          type="button"
+          onClick={installUpdate}
+          disabled={!fetchedUpdate || !update}
+        >
           install update
         </button>
       </div>
       <div className="row">
-        <div>Fetched ?{fetchedUpdate ? <>✅</> : <></>}</div>
+        <div>Fetched? {fetchedUpdate ? <>Yes</> : <>No</>}</div>
       </div>
-      <div className="row">
-        {update ? (
-          <pre>{JSON.stringify(update, null, 2)}</pre>
-        ) : (
-          <p>update null</p>
-        )}
-      </div>
-      <div className="row">
-        <div>Installing update var: {JSON.stringify(installingUpdate)}</div>
-      </div>
+      {!fetchedUpdate ? null : (
+        <>
+          <div className="row">
+            {update ? (
+              <pre>{JSON.stringify(update, null, 2)}</pre>
+            ) : (
+              <p>No update found!</p>
+            )}
+          </div>
+          {!installingUpdate ? null : (
+            <div className="row">
+              <div>
+                Installing update var: {JSON.stringify(installingUpdate)}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

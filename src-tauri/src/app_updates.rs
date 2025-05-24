@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use tauri::{ipc::Channel, AppHandle, Manager, Wry};
+use tauri::{AppHandle, Manager, Runtime, ipc::Channel};
 use tauri_plugin_updater::{Update, UpdaterExt};
 use tokio::sync::Mutex;
 
@@ -8,8 +8,8 @@ use tokio::sync::Mutex;
 pub enum Error {
     #[error(transparent)]
     Updater(#[from] tauri_plugin_updater::Error),
-    #[error("there is no pending update")]
-    NoPendingUpdate,
+    // #[error("there is no pending update")]
+    // NoPendingUpdate,
 }
 
 impl Serialize for Error {
@@ -21,7 +21,7 @@ impl Serialize for Error {
     }
 }
 
-type Result<T> = std::result::Result<T, Error>;
+// type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Clone, Serialize, Deserialize, Type)]
 #[serde(tag = "event", content = "data")]
@@ -46,14 +46,14 @@ pub struct UpdateMetadata {
 
 #[taurpc::procedures(event_trigger = UpdateEventTrigger, export_to = "../src/bindings.ts")]
 pub trait Updatable {
-    async fn fetch_update(app_handle: AppHandle<Wry>) -> Result<Option<UpdateMetadata>>;
-    async fn install_update(
-        app_handle: AppHandle<Wry>,
+    async fn fetch_update<R: Runtime>(app_handle: AppHandle<R>) -> Option<UpdateMetadata>;
+    async fn install_update<R: Runtime>(
+        app_handle: AppHandle<R>,
         on_event: Channel<DownloadEvent>,
-    ) -> Result<()>;
+    ) -> ();
 }
 
-#[derive(Clone, Type)]
+#[taurpc::ipc_type]
 pub struct PendingUpdateState {
     pub state: Option<Update>,
 }
@@ -70,20 +70,43 @@ pub type PendingUpdate = Mutex<PendingUpdateState>;
 
 #[taurpc::resolvers]
 impl Updatable for PendingUpdateState {
-    async fn fetch_update(self, app_handle: AppHandle) -> Result<Option<UpdateMetadata>> {
+    async fn fetch_update<R: Runtime>(self, app_handle: AppHandle<R>) -> Option<UpdateMetadata> {
         let url = tauri::Url::parse(&format!(
             "https://github.com/johncarmack1984/my-tauri-updater/releases/latest/download/latest.json"
         ))
-            .expect("invalid URL");
+        .expect("invalid URL");
 
-        let update = app_handle
-            .updater_builder()
-            .endpoints(vec![url])?
-            .build()?
-            .check()
-            .await?;
+        let builder = match app_handle.updater_builder().endpoints(vec![url]) {
+            Ok(endpoints) => endpoints,
+            Err(e) => {
+                eprintln!("Error fetching update: {}", e);
+                return None::<UpdateMetadata>;
+            }
+        };
 
-        let update_metadata = update.as_ref().map(|update| UpdateMetadata {
+        let updater = match builder.build() {
+            Ok(builder) => builder,
+            Err(e) => {
+                eprintln!("Error fetching update: {}", e);
+                return None::<UpdateMetadata>;
+            }
+        };
+
+        let update = match updater.check().await {
+            Ok(opt) => match opt {
+                Some(update) => update,
+                None => {
+                    eprintln!("No update found");
+                    return None::<UpdateMetadata>;
+                }
+            },
+            Err(e) => {
+                eprintln!("Error fetching update: {}", e);
+                return None::<UpdateMetadata>;
+            }
+        };
+
+        let update_metadata = Some(UpdateMetadata {
             version: update.version.clone(),
             current_version: update.current_version.clone(),
         });
@@ -93,29 +116,25 @@ impl Updatable for PendingUpdateState {
             .inner()
             .lock()
             .await
-            .state = update;
+            .state = Some(update);
 
-        Ok(update_metadata)
+        update_metadata
     }
 
-    async fn install_update(
+    async fn install_update<R: Runtime>(
         self,
-        app_handle: AppHandle,
+        app_handle: AppHandle<R>,
         on_event: Channel<DownloadEvent>,
-    ) -> Result<()> {
-        // pending_update: State<'_, PendingUpdate>,
+    ) -> () {
         let pending_update = app_handle.state::<PendingUpdate>();
 
         let Some(update) = pending_update.lock().await.state.clone() else {
-            return Err(Error::NoPendingUpdate);
+            return;
         };
-        // let Some(update) = pending_update.0.lock().unwrap().take() else {
-        //     return Err(Error::NoPendingUpdate);
-        // };
 
         let mut started = false;
 
-        update
+        match update
             .download_and_install(
                 |chunk_length, content_length| {
                     if !started {
@@ -129,25 +148,14 @@ impl Updatable for PendingUpdateState {
                     let _ = on_event.send(DownloadEvent::Finished);
                 },
             )
-            .await?;
+            .await
+        {
+            Ok(()) => (),
+            Err(e) => {
+                eprintln!("Error downloading update: {}", e);
+            }
+        };
 
-        Ok(())
+        ()
     }
 }
-
-// // #[tauri::command]
-// // #[specta::specta]
-// pub async fn fetch_update(
-//     app: AppHandle,
-//     pending_update: State<'_, PendingUpdate>,
-// ) -> Result<Option<UpdateMetadata>> {
-// }
-
-// #[tauri::command]
-// // #[specta::specta]
-// pub async fn install_update(
-//     pending_update: State<'_, PendingUpdate>,
-//     on_event: Channel<DownloadEvent>,
-// ) -> Result<()> {
-
-// }

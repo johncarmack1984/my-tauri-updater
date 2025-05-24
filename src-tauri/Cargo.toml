@@ -3,7 +3,7 @@ name = "my-tauri-updater"
 version = "0.1.1"
 description = "A Tauri App"
 authors = ["you"]
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -15,24 +15,24 @@ name = "my_tauri_updater_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { version = "2.2.0", features = [] }
 
 [dependencies]
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-specta-typescript = "0.0.7"
-specta = { version = "=2.0.0-rc.20", features = ["tokio", "function", "time"] }
-specta-util = "0.0.7"
-tauri = { version = "2.2.0", features = ["specta"] }
-tauri-plugin-process = "2"
-tauri-specta = { version = "=2.0.0-rc.20", features = ["derive", "typescript"] }
-taurpc = "0.3.3"
-thiserror = "2.0.9"
-tokio = "1.42.0"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+specta-typescript = "0.0.9"
+specta = { version = "=2.0.0-rc.22", features = ["serde_json"] }
+specta-util = "0.0.9"
+tauri = { version = "2.5.1", features = ["protocol-asset"] }
+tauri-plugin-process = "2.2.1"
+tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
+taurpc = "0.5.0"
+thiserror = "2.0.12"
+tokio = { version = "1.45.1", features = ["full"] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-updater = { version = "2.3.1", features = ["specta"] }
+tauri-plugin-updater = { version = "2.7.1", features = ["specta"] }
 
 [patch.crates-io]
-tauri = { path = "../../../johncarmack1984/tauri/crates/tauri" }
-tauri-plugin-updater = { path = "../../../johncarmack1984/plugins-workspace/plugins/updater" }
+tauri-plugin-updater = { git = "https://github.com/johncarmack1984/plugins-workspace.git", rev = "ba40198ae2617b39f47f42593cdec442784fc3a0" }
+# tauri-plugin-updater = { path = "../../../johncarmack1984/plugins-workspace/plugins/updater" }

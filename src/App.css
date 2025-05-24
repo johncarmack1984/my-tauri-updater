@@ -26,8 +26,13 @@
   padding-top: 10vh;
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
   justify-content: center;
   text-align: center;
+}
+
+.buttons {
+  margin-bottom: 1rem;
 }
 
 .logo {
@@ -85,6 +90,15 @@ button:hover {
 button:active {
   border-color: #396cd8;
   background-color: #e8e8e8;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  border-color: transparent;
 }
 
 input,
