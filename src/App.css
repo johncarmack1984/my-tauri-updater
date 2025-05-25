@@ -35,8 +35,7 @@
   margin-bottom: 1rem;
 }
 
-.events {
-  background-color: #202020;
+.data {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -44,7 +43,19 @@
   padding: 1rem;
   border-radius: 0.5rem;
   max-height: 200px;
-  overflow-y: auto;
+}
+
+.events {
+  background-color: #202020;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid #303030;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  max-height: 200px;
+  overflow-y: scroll;
 }
 
 .logo {
@@ -140,4 +151,22 @@ button {
   button:active {
     background-color: #0f0f0f69;
   }
+}
+
+h1 {
+  margin: 0;
+}
+
+h3 {
+  margin: 0;
+  background-color: #212121;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.update-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }

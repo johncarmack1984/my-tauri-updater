@@ -5,11 +5,11 @@ import { createTauRPCProxy as createProxy, type InferCommandOutput } from 'taurp
 type TAURI_CHANNEL<T> = (response: T) => void
 
 
-export type DownloadEvent = { event: "Started"; data: { contentLength: string | null } } | { event: "Progress"; data: { chunkLength: string } } | { event: "Finished" }
+export type DownloadEvent = { event: "started"; data: { contentLength: string | null } } | { event: "progress"; data: { chunkLength: string } } | { event: "finished" }
 
 export type UpdateMetadata = { version: string; currentVersion: string }
 
-const ARGS_MAP = { '':'{"install_update":["on_event"],"fetch_update":[]}' }
+const ARGS_MAP = { '':'{"fetch_update":[],"install_update":["on_event"]}' }
 export type Router = { '': { fetch_update: () => Promise<UpdateMetadata | null>, 
 install_update: (onEvent: TAURI_CHANNEL<DownloadEvent>) => Promise<null> } };
 
