@@ -84,7 +84,7 @@ impl Updatable for PendingUpdateState {
             }
         };
 
-        builder = builder.version_comparator(|current, update| update.version != current);
+        builder = builder.version_comparator(|current, update| update.version > current);
 
         let updater = match builder.build() {
             Ok(builder) => builder,

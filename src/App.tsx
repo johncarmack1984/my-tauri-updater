@@ -119,7 +119,7 @@ function App() {
       ) : (
         <div className="row events">
           {!update ? (
-            <p>No update found!</p>
+            <p>Application is up to date!</p>
           ) : (
             <>
               <div
@@ -141,7 +141,7 @@ function App() {
               </div>
             </>
           )}
-          {!finished && progressPercentage !== 100 ? (
+          {!update ? null : !finished && progressPercentage !== 100 ? (
             <button
               style={{
                 position: "relative",
