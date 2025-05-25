@@ -152,9 +152,7 @@ impl Updatable for PendingUpdateState {
             )
             .await
         {
-            Ok(()) => {
-                // app_handle.request_restart();
-            }
+            Ok(()) => (),
             Err(e) => {
                 eprintln!("Error downloading update: {}", e);
             }

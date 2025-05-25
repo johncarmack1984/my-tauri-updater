@@ -33,6 +33,7 @@ pub async fn run_app<R: Runtime, F: FnOnce(&App<R>) + Send + 'static>(
     }
 
     builder
+        .plugin(tauri_plugin_process::init())
         .setup(|app| setup_app(app, setup))
         .invoke_handler(router.into_handler())
         .run(tauri::generate_context!())
