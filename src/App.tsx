@@ -1,9 +1,8 @@
 "use client";
 
-import { createTauRPCProxy } from "./bindings";
+import { createTauRPCProxy, type DownloadEvent } from "./bindings";
 import { useState } from "react";
 import "./App.css";
-import { useQuery } from "@tanstack/react-query";
 // import { check } from "@tauri-apps/plugin-updater";
 // import { relaunch } from "@tauri-apps/plugin-process";
 
@@ -42,33 +41,30 @@ function App() {
   //   checkUpdate();
   // }, []);
 
-  const { data: taurpc } = useQuery({
-    queryKey: ["taurpc"],
-    queryFn: createTauRPCProxy,
-  });
-
   const [fetchedUpdate, setFetchedUpdate] = useState<boolean>(false);
   const [installingUpdate, setInstallingUpdate] = useState<unknown>(null);
   const [update, setUpdate] = useState<unknown>(null);
+  const [events, setEvents] = useState<DownloadEvent[]>([]);
 
   const checkForUpdate = async () => {
     try {
       setFetchedUpdate(true);
-      const update = await taurpc?.fetch_update();
-      console.log(update);
+      const update = await createTauRPCProxy().fetch_update();
       setUpdate(update);
     } catch (error) {
-      console.error(error);
       setUpdate(error);
     }
   };
 
   const installUpdate = async (_evt: React.MouseEvent<HTMLButtonElement>) => {
-    setInstallingUpdate(
-      await taurpc?.install_update((evt) => {
-        console.log("event update", evt);
+    setInstallingUpdate(true);
+    await createTauRPCProxy()
+      .install_update((evt) => {
+        setEvents((prev) => [...prev, evt]);
       })
-    );
+      .finally(() => {
+        setInstallingUpdate(false);
+      });
   };
 
   return (
@@ -81,9 +77,9 @@ function App() {
         <button
           type="button"
           onClick={installUpdate}
-          disabled={!fetchedUpdate || !update}
+          disabled={!fetchedUpdate || !update || !!installingUpdate}
         >
-          install update
+          {installingUpdate ? "installing..." : "install update"}
         </button>
       </div>
       <div className="row">
@@ -100,9 +96,14 @@ function App() {
           </div>
           {!installingUpdate ? null : (
             <div className="row">
-              <div>
-                Installing update var: {JSON.stringify(installingUpdate)}
-              </div>
+              Installing update: {JSON.stringify(installingUpdate)}
+            </div>
+          )}
+          {!events.length ? null : (
+            <div className="row events">
+              {events.map((evt) => (
+                <pre key={evt.event}>{JSON.stringify(evt, null, 2)}</pre>
+              ))}
             </div>
           )}
         </>

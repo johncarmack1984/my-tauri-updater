@@ -12,6 +12,7 @@
     "windows": [
       {
         "title": "my-tauri-updater",
+        "focus": true,
         "width": 800,
         "height": 600,
         "x": 0,
