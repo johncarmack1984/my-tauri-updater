@@ -9,7 +9,7 @@ export type DownloadEvent = { event: "Started"; data: { contentLength: string | 
 
 export type UpdateMetadata = { version: string; currentVersion: string }
 
-const ARGS_MAP = { '':'{"fetch_update":[],"install_update":["on_event"]}' }
+const ARGS_MAP = { '':'{"install_update":["on_event"],"fetch_update":[]}' }
 export type Router = { '': { fetch_update: () => Promise<UpdateMetadata | null>, 
 install_update: (onEvent: TAURI_CHANNEL<DownloadEvent>) => Promise<null> } };
 
