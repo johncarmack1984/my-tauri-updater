@@ -3,7 +3,6 @@
 import { createTauRPCProxy, type DownloadEvent } from "./bindings";
 import { useState } from "react";
 import "./App.css";
-import { useQuery } from "@tanstack/react-query";
 // import { check } from "@tauri-apps/plugin-updater";
 // import { relaunch } from "@tauri-apps/plugin-process";
 
@@ -42,11 +41,6 @@ function App() {
   //   checkUpdate();
   // }, []);
 
-  const { data: taurpc } = useQuery({
-    queryKey: ["taurpc"],
-    queryFn: createTauRPCProxy,
-  });
-
   const [fetchedUpdate, setFetchedUpdate] = useState<boolean>(false);
   const [installingUpdate, setInstallingUpdate] = useState<unknown>(null);
   const [update, setUpdate] = useState<unknown>(null);
@@ -55,19 +49,17 @@ function App() {
   const checkForUpdate = async () => {
     try {
       setFetchedUpdate(true);
-      const update = await taurpc?.fetch_update();
-      console.log(update);
+      const update = await createTauRPCProxy().fetch_update();
       setUpdate(update);
     } catch (error) {
-      console.error(error);
       setUpdate(error);
     }
   };
 
   const installUpdate = async (_evt: React.MouseEvent<HTMLButtonElement>) => {
     setInstallingUpdate(true);
-    await taurpc
-      ?.install_update((evt) => {
+    await createTauRPCProxy()
+      .install_update((evt) => {
         setEvents((prev) => [...prev, evt]);
       })
       .finally(() => {
