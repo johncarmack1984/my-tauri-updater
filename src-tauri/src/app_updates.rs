@@ -24,7 +24,7 @@ impl Serialize for Error {
 // type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Clone, Serialize, Deserialize, Type)]
-#[serde(tag = "event", content = "data")]
+#[serde(tag = "event", content = "data", rename_all = "camelCase")]
 pub enum DownloadEvent {
     #[serde(rename_all = "camelCase")]
     Started {
@@ -76,13 +76,15 @@ impl Updatable for PendingUpdateState {
         ))
         .expect("invalid URL");
 
-        let builder = match app_handle.updater_builder().endpoints(vec![url]) {
+        let mut builder = match app_handle.updater_builder().endpoints(vec![url]) {
             Ok(endpoints) => endpoints,
             Err(e) => {
                 eprintln!("Error fetching update: {}", e);
                 return None::<UpdateMetadata>;
             }
         };
+
+        builder = builder.version_comparator(|current, update| update.version != current);
 
         let updater = match builder.build() {
             Ok(builder) => builder,
@@ -151,7 +153,7 @@ impl Updatable for PendingUpdateState {
             .await
         {
             Ok(()) => {
-                app_handle.request_restart();
+                // app_handle.request_restart();
             }
             Err(e) => {
                 eprintln!("Error downloading update: {}", e);
