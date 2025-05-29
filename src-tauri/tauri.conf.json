@@ -36,13 +36,16 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "category": "Utility",
+    "linux": { "deb": {} },
+    "targets": ["app", "deb"]
   },
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQzNjdDMDJENTRFRDY3MjYKUldRbVorMVVMY0JuMDliWnVpOEZzWGtHUThXSzNrMjJNTUU0NDltZTFEZ0VDam5UaVZLbHFPbnYK",
       "endpoints": [
-        "https://github.com/johncarmack1984/my-tauri-updater/releases/latest/download/latest.json"
+        "https://my-tauri-updater.s3.us-west-1.amazonaws.com/app/latest.json"
       ]
     }
   }
