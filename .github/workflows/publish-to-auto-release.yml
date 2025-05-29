@@ -5,27 +5,50 @@ on:
     branches:
       - release
 
-# This is the example from the readme.
-# On each push to the `release` branch it will create or update a GitHub release, build your app, and upload the artifacts to the release.
-
 env:
   SCCACHE_GHA_ENABLED: "true"
   RUSTC_WRAPPER: "sccache"
+  release-channel: "stable"
 
 jobs:
+  matrix-prep:
+    runs-on: "ubuntu-latest"
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+      - id: set-matrix
+        run: |
+          if [ "$RELEASE_CHANNEL" = "dev" ]; then
+            matrixFile="./.github/fixtures/matrix_pr.json"
+          else
+            matrixFile="./.github/fixtures/matrix_release.json"
+          fi
+          matrix=$(jq '.' $matrixFile)
+          echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
+        env:
+          RELEASE_CHANNEL: ${{ env.release-channel }}
+      - name: Print matrix
+        run: |
+          echo "matrix=$matrix"
+        env:
+          matrix: ${{ steps.set-matrix.outputs.matrix }}
   publish-tauri:
+    name: "Build ${{ matrix.platform }}"
+    needs: matrix-prep
     permissions:
       contents: write
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - platform: "macos-latest" # for Arm based macs (M1 and above).
-            args: "--target aarch64-apple-darwin"
-          - platform: "ubuntu-latest" # for Tauri v1 you could replace this with ubuntu-20.04.
-            args: ""
-          # - platform: "windows-latest" <--- stock install seems not to build 2025/01/05
-          #   args: ""
+      matrix: ${{fromJson(needs.matrix-prep.outputs.matrix)}}
+
+    outputs:
+      release-id: ${{ steps.build.outputs.releaseId }}
+      release-html-url: ${{ steps.build.outputs.releaseHtmlUrl }}
+      release-upload-url: ${{ steps.build.outputs.releaseUploadUrl }}
+      artifact-paths: "${{ steps.build.outputs.artifactPaths }}"
+      app-version: ${{ steps.build.outputs.appVersion }}
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -58,6 +81,7 @@ jobs:
         working-directory: src-tauri
 
       - uses: tauri-apps/tauri-action@v0
+        id: build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -79,6 +103,32 @@ jobs:
           includeUpdaterJson: true
           args: ${{ matrix.args }}
 
+  push-to-s3:
+    permissions:
+      contents: write
+      pull-requests: write
+    needs: publish-tauri
+    runs-on: ubuntu-latest
+
+    name: "Push to S3"
+
+    env:
+      release-id: ${{ needs.publish-tauri.outputs.release-id }}
+      release-html-url: ${{ needs.publish-tauri.outputs.release-html-url }}
+      release-upload-url: ${{ needs.publish-tauri.outputs.release-upload-url }}
+      artifact-paths: ${{ needs.publish-tauri.outputs.artifact-paths }}
+      app-version: ${{ needs.publish-tauri.outputs.app-version }}
+
+    steps:
+      - name: Download release assets
+        run: |
+          echo "gh release download ${{ env.release-id }} -D release"
+          gh release download ${{ env.release-id }} -D release
+
+      - name: Update URLs in latest.json
+        run: |
+          echo "sed -i '' 's/github.com/my-tauri-updater.s3.us-west-1.amazonaws.com/g' release/latest.json"
+          sed -i '' 's/github.com/my-tauri-updater.s3.us-west-1.amazonaws.com/g' release/latest.json
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v4
@@ -87,8 +137,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_GITHUB_CI_SECRET }}
           aws-region: "us-west-1"
 
-      - name: Copy configs to S3
+      - name: Push Assets to S3
         uses: osiegmar/s3-publisher-action@v1
         with:
           bucket: my-tauri-updater
-          dir: src-tauri/target/release
+          dir: release
+          prefix: ${{ env.app-version }}/
+
+      - name: Update latest.json in S3
+        uses: osiegmar/s3-publisher-action@v1
+        with:
+          bucket: my-tauri-updater
+          dir: release
+          includes: "latest.json"
