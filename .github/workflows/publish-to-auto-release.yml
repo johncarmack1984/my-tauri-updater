@@ -78,3 +78,17 @@ jobs:
           includeRelease: true
           includeUpdaterJson: true
           args: ${{ matrix.args }}
+
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ vars.AWS_GITHUB_CI_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_GITHUB_CI_SECRET }}
+          aws-region: "us-west-1"
+
+      - name: Copy configs to S3
+        uses: osiegmar/s3-publisher-action@v1
+        with:
+          bucket: my-tauri-updater
+          dir: src-tauri/target/release
