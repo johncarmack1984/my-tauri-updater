@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish-tauri:
-    name: "Build ${{ matrix.platform }}"
+    name: "${{ matrix.platform }} ${{ matrix.args }}"
     permissions:
       contents: write
     strategy:
@@ -130,6 +130,7 @@ jobs:
       repo-owner: ${{ github.repository_owner }}
       repo-name: ${{ github.event.repository.name }}
       package-name: "app"
+      bucket-name: "my-tauri-updater"
 
     steps:
       - uses: actions/checkout@v4
@@ -145,22 +146,22 @@ jobs:
 
       - name: Update URLs in latest.json
         run: |
-          echo "sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ env.package-name }}-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/${{ env.package-name }}\/${{ env.app-version }}/g' release/latest.json"
-          sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ env.package-name }}-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/${{ env.package-name }}\/${{ env.app-version }}/g' release/latest.json
+          echo "sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ env.package-name }}-v${{ env.app-version }}/${{ env.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ env.package-name }}\/${{ env.app-version }}/g' release/latest.json"
+          sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ env.package-name }}-v${{ env.app-version }}/${{ env.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ env.package-name }}\/${{ env.app-version }}/g' release/latest.json
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ vars.AWS_GITHUB_CI_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_GITHUB_CI_SECRET }}
-          aws-region: "us-west-1"
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Push Assets to S3
         uses: osiegmar/s3-publisher-action@v1
         with:
           bucket: my-tauri-updater
           dir: release
-          prefix: "app/${{ env.app-version }}/"
+          prefix: "${{ env.package-name }}/${{ env.app-version }}/"
 
       - name: Update latest.json in S3
         uses: osiegmar/s3-publisher-action@v1
@@ -168,4 +169,4 @@ jobs:
           bucket: my-tauri-updater
           dir: release
           includes: "latest.json"
-          prefix: "app/"
+          prefix: "${{ env.package-name }}/"
