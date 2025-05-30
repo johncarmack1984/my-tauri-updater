@@ -8,40 +8,23 @@ on:
 env:
   SCCACHE_GHA_ENABLED: "true"
   RUSTC_WRAPPER: "sccache"
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
   release-channel: "stable"
 
 jobs:
-  matrix-prep:
-    runs-on: "ubuntu-latest"
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
-      - id: set-matrix
-        run: |
-          if [ "$RELEASE_CHANNEL" = "dev" ]; then
-            matrixFile="./.github/fixtures/matrix_pr.json"
-          else
-            matrixFile="./.github/fixtures/matrix_release.json"
-          fi
-          matrix=$(jq '.' $matrixFile)
-          echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
-        env:
-          RELEASE_CHANNEL: ${{ env.release-channel }}
-      - name: Print matrix
-        run: |
-          echo "matrix=$matrix"
-        env:
-          matrix: ${{ steps.set-matrix.outputs.matrix }}
   publish-tauri:
     name: "Build ${{ matrix.platform }}"
-    needs: matrix-prep
     permissions:
       contents: write
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.matrix-prep.outputs.matrix)}}
+      matrix:
+        include:
+          - platform: "macos-latest"
+            args: "--target aarch64-apple-darwin"
+          - platform: ubuntu-latest
+            args: ""
 
     outputs:
       release-id: ${{ steps.build.outputs.releaseId }}
@@ -67,7 +50,7 @@ jobs:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-latest' # This must match the platform value defined above.
+        if: matrix.platform == 'ubuntu-latest'
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: libwebkit2gtk-4.1-dev build-essential librsvg2-dev patchelf webkit2gtk-driver zstd xvfb curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev # libappindicator3-dev
@@ -102,6 +85,22 @@ jobs:
           includeRelease: true
           includeUpdaterJson: true
           args: ${{ matrix.args }}
+      - name: Output Summary
+        env:
+          RELEASE_ID: ${{ steps.build.outputs.releaseId }}
+          RELEASE_HTML_URL: ${{ steps.build.outputs.releaseHtmlUrl }}
+          RELEASE_UPLOAD_URL: ${{ steps.build.outputs.releaseUploadUrl }}
+          ARTIFACT_PATHS: "${{ steps.build.outputs.artifactPaths }}"
+          APP_VERSION: ${{ steps.build.outputs.appVersion }}
+
+        run: |
+          printf "\n\n\n            ✈️      ✈️      \n\n"
+          printf "\033[1mRelease Id : \033[32mv${RELEASE_ID}\033[0m\n"
+          printf "\033[1mRelease Html Url : \033[32mv${RELEASE_HTML_URL}\033[0m\n"
+          printf "\033[1mRelease Upload Url : \033[32mv${RELEASE_UPLOAD_URL}\033[0m\n"
+          printf "\033[1mArtifact Paths : \033[32mv${ARTIFACT_PATHS}\033[0m\n"
+          printf "\033[1mApp version : \033[32mv${APP_VERSION}\033[0m\n"
+          printf "\n      ✈️      ✈️      ✈️      \n\n\n\n "
 
   push-to-s3:
     permissions:
@@ -133,8 +132,8 @@ jobs:
 
       - name: Update URLs in latest.json
         run: |
-          echo "sed -i 's/github.com\/johncarmack1984\/my-tauri-updater\/releases\/download\/app-v0.2.1/my-tauri-updater.s3.us-west-1.amazonaws.com\/app\/0.2.1/g' release/latest.json"
-          sed -i 's/github.com\/johncarmack1984\/my-tauri-updater\/releases\/download\/app-v0.2.1/my-tauri-updater.s3.us-west-1.amazonaws.com\/app\/0.2.1/g' release/latest.json
+          echo "sed -i 's/github.com\/johncarmack1984\/my-tauri-updater\/releases\/download\/app-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/app\/${{ env.app-version }}/g' release/latest.json"
+          sed -i 's/github.com\/johncarmack1984\/my-tauri-updater\/releases\/download\/app-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/app\/${{ env.app-version }}/g' release/latest.json
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v4
