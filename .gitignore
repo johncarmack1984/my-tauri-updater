@@ -29,3 +29,4 @@ target
 
 *.key
 **/release/**/*
+.env
