@@ -119,6 +119,8 @@ jobs:
       release-upload-url: ${{ needs.publish-tauri.outputs.release-upload-url }}
       artifact-paths: ${{ needs.publish-tauri.outputs.artifact-paths }}
       app-version: ${{ needs.publish-tauri.outputs.app-version }}
+      repo-owner: ${{ github.repository_owner }}
+      repo-name: ${{ github.event.repository.name }}
 
     steps:
       - uses: actions/checkout@v4
@@ -134,8 +136,8 @@ jobs:
 
       - name: Update URLs in latest.json
         run: |
-          echo "sed -i 's/github.com\/johncarmack1984\/my-tauri-updater\/releases\/download\/app-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/app\/${{ env.app-version }}/g' release/latest.json"
-          sed -i 's/github.com\/johncarmack1984\/my-tauri-updater\/releases\/download\/app-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/app\/${{ env.app-version }}/g' release/latest.json
+          echo "sed -i 's/github.com\/${{ env.repo-owner }}\/my-tauri-updater\/releases\/download\/app-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/app\/${{ env.app-version }}/g' release/latest.json"
+          sed -i 's/github.com\/${{ env.repo-owner }}\/my-tauri-updater\/releases\/download\/app-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/app\/${{ env.app-version }}/g' release/latest.json
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v4

@@ -1856,7 +1856,7 @@ dependencies = [
 
 [[package]]
 name = "my-tauri-updater"
-version = "0.2.5"
+version = "0.2.6"
 dependencies = [
  "serde",
  "serde_json",
@@ -3657,7 +3657,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-updater"
 version = "2.7.1"
-source = "git+https://github.com/johncarmack1984/plugins-workspace.git?rev=eb12badaf1df0dbdd1a7eb394b41cce21349ddca#eb12badaf1df0dbdd1a7eb394b41cce21349ddca"
+source = "git+https://github.com/johncarmack1984/plugins-workspace.git?rev=b46eb6eef2961b0bf97f7855ffba64242d1309a8#b46eb6eef2961b0bf97f7855ffba64242d1309a8"
 dependencies = [
  "base64 0.22.1",
  "dirs",
