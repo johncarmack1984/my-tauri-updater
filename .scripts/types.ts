@@ -2,7 +2,12 @@ import { z } from "zod";
 import { Runner } from "./runner";
 
 const wixLanguageSchema = z.union(
-  [z.string(), z.array(z.string()), z.record(z.unknown())],
+  [
+    z.unknown(),
+    z.string(),
+    z.array(z.string()),
+    z.object({ language: z.string().optional() }),
+  ],
   { message: "Wix language must be a string, array of strings, or an object" }
 );
 
@@ -159,7 +164,9 @@ const tauriConfigV1Schema = z.object({
             release: z.string().optional(),
           })
           .optional(),
-        windows: z.object({ wix: wixLanguageSchema.optional() }).optional(),
+        windows: z
+          .object({ wix: z.object({ language: z.string().optional() }) })
+          .optional(),
       })
       .optional(),
   }),
@@ -188,9 +195,7 @@ const tauriConfigV2Schema = z.object({
         })
         .optional(),
       windows: z
-        .object({
-          wix: wixLanguageSchema.optional(),
-        })
+        .object({ wix: z.object({ language: z.string().optional() }) })
         .optional(),
     })
     .optional(),
@@ -223,6 +228,8 @@ export {
   type ExtensionMap,
   type Info,
   type InitOptions,
+  type TauriConfigV1,
+  type TauriConfigV2,
   type TargetInfo,
   type TargetPlatform,
 };

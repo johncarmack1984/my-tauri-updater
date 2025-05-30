@@ -5,13 +5,6 @@ on:
     branches:
       - release
 
-env:
-  SCCACHE_GHA_ENABLED: "true"
-  RUSTC_WRAPPER: "sccache"
-  CARGO_TERM_COLOR: always
-  CARGO_INCREMENTAL: 0
-  release-channel: "stable"
-
 jobs:
   publish-tauri:
     name: "Build ${{ matrix.platform }}"
@@ -27,8 +20,19 @@ jobs:
             args: "--target x86_64-apple-darwin"
           - platform: ubuntu-latest
             args: ""
+          - platform: ubuntu-24.04-arm
+            args: ""
           - platform: "windows-latest"
             args: ""
+          - platform: windows-11-arm
+            args: "--target aarch64-pc-windows-msvc"
+
+    env:
+      SCCACHE_GHA_ENABLED: ${{ matrix.platform != 'windows-11-arm' && 'true' ||  'false' }}
+      RUSTC_WRAPPER: ${{ matrix.platform != 'windows-11-arm' && 'sccache' ||  null }}
+      CARGO_TERM_COLOR: always
+      CARGO_INCREMENTAL: 0
+      release-channel: "stable"
 
     outputs:
       release-id: ${{ steps.build.outputs.releaseId }}
@@ -40,6 +44,9 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: mozilla-actions/sccache-action@v0.0.9
+        # disable on msvc due to a temporary limitation, see: https://github.com/Mozilla-Actions/sccache-action/issues/189
+        if: matrix.platform != 'windows-11-arm'
+        continue-on-error: true
       - uses: actions/checkout@v4
 
       - name: setup node
@@ -50,11 +57,10 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.platform == 'windows-11-arm' && 'aarch64-pc-windows-msvc' || '' }}
 
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.platform == 'ubuntu-latest' || matrix.platform == 'ubuntu-24.04-arm'
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: libwebkit2gtk-4.1-dev build-essential librsvg2-dev patchelf webkit2gtk-driver zstd xvfb curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev # libappindicator3-dev
@@ -99,11 +105,11 @@ jobs:
 
         run: |
           printf "\n\n\n            ✈️      ✈️      \n\n"
-          printf "\033[1mRelease Id : \033[32mv${RELEASE_ID}\033[0m\n"
-          printf "\033[1mRelease Html Url : \033[32mv${RELEASE_HTML_URL}\033[0m\n"
-          printf "\033[1mRelease Upload Url : \033[32mv${RELEASE_UPLOAD_URL}\033[0m\n"
-          printf "\033[1mArtifact Paths : \033[32mv${ARTIFACT_PATHS}\033[0m\n"
-          printf "\033[1mApp version : \033[32mv${APP_VERSION}\033[0m\n"
+          printf "\033[1mRelease Id : \033[32m${RELEASE_ID}\033[0m\n"
+          printf "\033[1mRelease Html Url : \033[32m${RELEASE_HTML_URL}\033[0m\n"
+          printf "\033[1mRelease Upload Url : \033[32m${RELEASE_UPLOAD_URL}\033[0m\n"
+          printf "\033[1mArtifact Paths : \033[32m${ARTIFACT_PATHS}\033[0m\n"
+          printf "\033[1mApp version : \033[32m${APP_VERSION}\033[0m\n"
           printf "\n      ✈️      ✈️      ✈️      \n\n\n\n "
 
   push-to-s3:
@@ -123,6 +129,7 @@ jobs:
       app-version: ${{ needs.publish-tauri.outputs.app-version }}
       repo-owner: ${{ github.repository_owner }}
       repo-name: ${{ github.event.repository.name }}
+      package-name: "app"
 
     steps:
       - uses: actions/checkout@v4
@@ -131,15 +138,15 @@ jobs:
 
       - name: Download release assets
         run: |
-          echo "gh release download app-v${{ env.app-version }} -D release"
-          gh release download app-v${{ env.app-version }} -D release
+          echo "gh release download ${{ env.package-name }}-v${{ env.app-version }} -D release"
+          gh release download ${{ env.package-name }}-v${{ env.app-version }} -D release
         env:
           GH_TOKEN: ${{ github.token }}
 
       - name: Update URLs in latest.json
         run: |
-          echo "sed -i 's/github.com\/${{ env.repo-owner }}\/my-tauri-updater\/releases\/download\/app-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/app\/${{ env.app-version }}/g' release/latest.json"
-          sed -i 's/github.com\/${{ env.repo-owner }}\/my-tauri-updater\/releases\/download\/app-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/app\/${{ env.app-version }}/g' release/latest.json
+          echo "sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ env.package-name }}-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/${{ env.package-name }}\/${{ env.app-version }}/g' release/latest.json"
+          sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ env.package-name }}-v${{ env.app-version }}/my-tauri-updater.s3.us-west-1.amazonaws.com\/${{ env.package-name }}\/${{ env.app-version }}/g' release/latest.json
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v4

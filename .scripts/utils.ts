@@ -1,4 +1,4 @@
-import { $ } from "bun";
+// import { $ } from "bun";
 import { existsSync, readFileSync } from "node:fs";
 import path, { join, normalize, resolve, sep } from "node:path";
 
@@ -273,8 +273,8 @@ export async function execCommand(
   env: Record<string, string> = {}
 ): Promise<void> {
   const thisCommand = `${command} ${args.join(" ")}`;
-  console.log(`running ${thisCommand}`);
-  await $`${thisCommand}`;
+  console.log(`<disabled> running ${thisCommand}`);
+  // await $`${thisCommand}`;
 }
 
 export function getInfo(
