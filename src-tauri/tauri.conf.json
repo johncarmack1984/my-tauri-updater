@@ -39,7 +39,7 @@
     ],
     "category": "Utility",
     "linux": { "deb": {} },
-    "targets": "all",
+    "targets": ["app", "deb", "msi"],
     "windows": {
       "allowDowngrades": true,
       "certificateThumbprint": null,
