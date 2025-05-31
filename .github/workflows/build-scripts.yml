@@ -30,3 +30,4 @@ jobs:
         with:
           name: .dist
           path: /tmp/.dist.tar
+          retention-days: 1
