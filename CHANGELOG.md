@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.4.3-rc.3]
+
+- [`07205ab`](https://github.com/johncarmack1984/my-tauri-updater/commit/07205ab369430b8d1e84ed4042e46445447cc14f) Overhaul CI
+
 ## \[0.4.3-rc.2]
 
 - [`9e75d01`](https://github.com/johncarmack1984/my-tauri-updater/commit/9e75d01cace9497f715ed95adc13c8d174f2ed79) Simplify setup of MSI versions
