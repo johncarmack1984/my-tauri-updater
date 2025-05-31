@@ -23,21 +23,12 @@ on:
         value: ${{ jobs.publish-tauri.outputs.app-version }}
 
 jobs:
-  build-scripts:
-    uses: ./.github/workflows/build-scripts.yml
-    secrets: inherit
-  get-version:
-    needs: build-scripts
-    uses: ./.github/workflows/get-version.yml
-    secrets: inherit
   matrix-prep:
-    needs: get-version
     uses: ./.github/workflows/matrix-prep.yml
-    with:
-      release-channel: ${{ needs.get-version.outputs.release-channel }}
+    secrets: inherit
 
   publish-tauri:
-    needs: [build-scripts, get-version, matrix-prep]
+    needs: [matrix-prep]
     name: "${{ matrix.platform }} ${{ matrix.args }}"
     permissions:
       contents: write
@@ -98,17 +89,12 @@ jobs:
       - uses: swatinem/rust-cache@v2
       - run: cargo fetch
         working-directory: src-tauri
-      - name: Retrieve built scripts
-        uses: actions/download-artifact@v4
-        with:
-          name: .dist
-          path: /tmp/.dist/
-      - name: Extract built scripts
-        run: tar -xvf /tmp/.dist/.dist.tar
       - name: Set MSI Version
         if: matrix.platform == 'windows-latest' || matrix.platform == 'windows-11-arm'
         id: set-msi-version
-        run: node .dist\set-msi-version.mjs
+        run: |
+          pnpm build:scripts
+          node .dist\set-msi-version.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -124,12 +110,12 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          APP_VERSION: ${{ needs.get-version.outputs.version }}
-          MSI_VERSION: ${{ needs.get-version.outputs.msi-version }}
-          RELEASE_CHANNEL: ${{ needs.get-version.outputs.release-channel }}
+          APP_VERSION: ${{ needs.matrix-prep.outputs.version }}
+          MSI_VERSION: ${{ needs.matrix-prep.outputs.msi-version }}
+          RELEASE_CHANNEL: ${{ needs.matrix-prep.outputs.release-channel }}
         with:
           releaseId: ${{ inputs.release-id }}
-          appVersion: ${{ matrix.platform == 'windows-latest' && env.MSI_VERSION && matrix.platform == 'windows-11-arm' && env.MSI_VERSION || env.APP_VERSION }}
+          appVersion: ${{ matrix.platform == 'windows-latest' && env.MSI_VERSION || matrix.platform == 'windows-11-arm' && env.MSI_VERSION || env.APP_VERSION }}
           releaseDraft: true
           includeDebug: true
           includeRelease: true
