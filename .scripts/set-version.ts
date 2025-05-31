@@ -33,11 +33,6 @@ const files = [
     update: (content: string) =>
       content.replace(/version\s*=\s*"[^"]+"/, `version = "${newVersion}"`),
   },
-  {
-    path: "src-tauri/tauri.conf.json",
-    update: (content: string) =>
-      content.replace(/"version":\s*"[^"]+"/, `"version": "${newVersion}"`),
-  },
 ];
 
 // Update each file
