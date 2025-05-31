@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.4.2-rc.1]
+
+- [`e461cb0`](https://github.com/johncarmack1984/my-tauri-updater/commit/e461cb073078a61e147ca55991b66fa8b64b33e5) Ensure prerelease versions use syntax that can be understood by Windows MSI installers
+
 ## \[0.4.2-rc.0]
 
 - [`0b664ae`](https://github.com/johncarmack1984/my-tauri-updater/commit/0b664ae85a1fe7c6860679ba9e4b5b6fa291ea51) Move to release candidate channel.

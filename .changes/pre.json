@@ -1,6 +1,7 @@
 {
   "tag": "rc",
   "changes": [
+    ".changes/handle-windows-prerelease-versioning.md",
     ".changes/move-to-rc.md"
   ]
 }
