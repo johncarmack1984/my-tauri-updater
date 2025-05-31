@@ -3,10 +3,10 @@ name: covector version or publish
 on:
   workflow_call:
     outputs:
-      releaseId:
+      release-id:
         description: The ID of the created release.
         value: ${{ jobs.version-or-publish.outputs.releaseId }}
-      commandRan:
+      command-ran:
         description: The command that was run by covector.
         value: ${{ jobs.version-or-publish.outputs.commandRan }}
 

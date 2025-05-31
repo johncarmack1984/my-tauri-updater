@@ -1,0 +1,27 @@
+name: Build .scripts
+
+on:
+  workflow_call:
+
+jobs:
+  build-repo-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Build Scripts
+        run: bun run build:scripts
+
+      - run: tar -cvf /tmp/.dist.tar .dist
+
+      - name: Upload Scripts
+        uses: actions/upload-artifact@v4
+        with:
+          name: .dist
+          path: /tmp/.dist.tar

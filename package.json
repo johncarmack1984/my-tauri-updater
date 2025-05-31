@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:scripts": "tsup .scripts/*.ts --format esm --out-dir .dist",
+    "build:scripts": "tsup",
     "preview": "vite preview",
     "tauri": "tauri",
     "test": "vitest"
@@ -19,6 +19,7 @@
     "@tauri-apps/plugin-opener": "^2.2.7",
     "@tauri-apps/plugin-process": "^2.2.1",
     "@tauri-apps/plugin-updater": "^2.7.1",
+    "covector": "^0.12.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "string-argv": "^0.3.2",

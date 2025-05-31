@@ -1,0 +1,85 @@
+name: Get Version Info
+
+on:
+  workflow_call:
+    outputs:
+      release-channel:
+        description: "The release channel for the current build."
+        value: ${{ jobs.get-version.outputs.release-channel }}
+      release-type:
+        description: "The type of release (e.g., stable, beta, nightly)."
+        value: ${{ jobs.get-version.outputs.release-type }}
+      version:
+        description: "The version of the application."
+        value: ${{ jobs.get-version.outputs.version }}
+      msi-version:
+        description: "The MSI version of the application."
+        value: ${{ jobs.get-version.outputs.msi-version }}
+
+jobs:
+  covector-status:
+    uses: ./.github/workflows/covector-status.yml
+    secrets: inherit
+  get-version:
+    needs: covector-status
+    runs-on: "ubuntu-latest"
+
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      msi-version: ${{ steps.get-msi-version.outputs.msi-version }}
+      release-channel: ${{ steps.get-release-channel.outputs.release-channel }}
+      release-type: ${{ steps.get-release-type.outputs.release-type }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - run: npm i
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: .dist
+          path: /tmp/.dist/
+
+      - run: tar -xvf /tmp/.dist/.dist.tar
+
+      - id: get-version
+        run: |
+          VERSION=$(node .dist/print-version.mjs)
+          echo "version=$(echo $VERSION | cut -d ' ' -f1)" >> $GITHUB_OUTPUT
+
+      - id: get-msi-version
+        run: |
+          MSI_VERSION=$(node .dist/print-msi-version.mjs)
+          echo "msi-version=$MSI_VERSION" >> $GITHUB_OUTPUT
+
+      - id: get-release-channel
+        run: |
+          RELEASE_CHANNEL=$(node .dist/print-release-channel.mjs)
+          echo "release-channel=$RELEASE_CHANNEL" >> $GITHUB_OUTPUT
+
+      - id: get-release-type
+        run: |
+          RELEASE_TYPE=$(npx covector status | grep 'app:' | sed 's/app://' | xargs | cut -d ' ' -f1)
+          echo "release-type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+
+      - name: "Output: ${{ steps.get-release-channel.outputs.release-channel }} ${{ steps.get-release-type.outputs.release-type }}: ${{ steps.get-version.outputs.version }}"
+        env:
+          RELEASE_CHANNEL: ${{ steps.get-release-channel.outputs.release-channel }}
+          RELEASE_TYPE: ${{ steps.get-release-type.outputs.release-type }}
+          CURRENT_VERSION: ${{ steps.get-version.outputs.version }}
+          MSI_VERSION: ${{ steps.get-msi-version.outputs.msi-version }}
+        run: |
+          printf "\n\n\n      ✈️      ✈️      ✈️      \n\n"
+          printf "\033[1mCurrent version: \033[33mv${CURRENT_VERSION}\033[0m\n"
+          printf "\033[1mPrevious tag : \033[33m${PREVIOUS_TAG}\033[0m\n"
+          printf "\033[1mTarget version : \033[32mv${TARGET_VERSION}\033[0m\n"
+          printf "\033[1mTag name: \033[33m${TAG_NAME}\033[0m\n"
+          printf "\033[1mPR branch : \033[32m${PR_BRANCH}\033[0m\n"
+          printf "\n      ✈️      ✈️      ✈️      \n\n\n\n "

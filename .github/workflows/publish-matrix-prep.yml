@@ -1,20 +1,17 @@
-name: matrix-prep
+name: job matrix prep
 on:
   workflow_call:
     inputs:
-      releaseChannel:
-        default: "stable"
-        type: string
-      releaseId:
+      release-channel:
         required: true
         type: string
     outputs:
       matrix:
         description: "Matrix for publish jobs"
-        value: ${{ jobs.matrix_prep.outputs.matrix }}
+        value: ${{ jobs.matrix-prep.outputs.matrix }}
 
 jobs:
-  matrix_prep:
+  matrix-prep:
     runs-on: "ubuntu-latest"
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -31,7 +28,7 @@ jobs:
           matrix=$(jq '.' $matrixFile)
           echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
         env:
-          RELEASE_CHANNEL: ${{ inputs.releaseChannel }}
+          RELEASE_CHANNEL: ${{ inputs.release-channel }}
       - name: Print matrix
         run: |
           echo "matrix=$matrix"

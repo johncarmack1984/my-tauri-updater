@@ -1,4 +1,4 @@
-import version from "./current-msi-version";
+import version from "./get-msi-version";
 import setVersion from "./set-version";
 
 const main = (newVersion: string) => {

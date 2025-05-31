@@ -16,8 +16,19 @@ jobs:
 
   publish-to-auto-release:
     needs: version-or-publish
-    if: needs.version-or-publish.outputs.releaseId
+    if: needs.version-or-publish.outputs.release-id
     uses: ./.github/workflows/publish-to-auto-release.yml
     secrets: inherit
     with:
-      releaseId: ${{ needs.version-or-publish.outputs.releaseId }}
+      release-id: ${{ needs.version-or-publish.outputs.release-id }}
+
+  push-to-s3:
+    needs: publish-to-auto-release
+    uses: ./.github/workflows/push-to-s3.yml
+    secrets: inherit
+
+    with:
+      release-id: ${{ needs.publish-to-auto-release.outputs.release-id }}
+      app-version: ${{ needs.publish-to-auto-release.outputs.app-version }}
+      package-name: "app"
+      bucket-name: "my-tauri-updater"
