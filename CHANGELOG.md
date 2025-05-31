@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.5.0-rc.0]
+
+- [`d2ce26b`](https://github.com/johncarmack1984/my-tauri-updater/commit/d2ce26b4ca4776762f68754960ff52c81af3153b) Move to pnpm
+
 ## \[0.4.3-rc.3]
 
 - [`07205ab`](https://github.com/johncarmack1984/my-tauri-updater/commit/07205ab369430b8d1e84ed4042e46445447cc14f) Overhaul CI
