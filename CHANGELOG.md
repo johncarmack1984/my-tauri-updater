@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.3.3-canary.2]
+
+- [`8025622`](https://github.com/johncarmack1984/my-tauri-updater/commit/80256226206f29e48defbef68259da0b9a042d09) Split workflows into modules
+
 ## \[0.3.3-canary.1]
 
 - [`d41582f`](https://github.com/johncarmack1984/my-tauri-updater/commit/d41582f9aa57cc2241563f4f27bc0bba5b7c136a) Fix the canary build.
