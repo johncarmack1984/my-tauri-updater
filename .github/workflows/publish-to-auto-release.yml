@@ -11,7 +11,6 @@ on:
 
 jobs:
   matrix_prep:
-    # runs-on: "ubuntu-latest"
     uses: ./.github/workflows/matrix-prep.yml
     with:
       releaseChannel: ${{ inputs.releaseChannel }}

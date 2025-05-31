@@ -46,7 +46,11 @@
         "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
         "pipe": true
       },
-      "publish": "",
+      "publish": {
+        "command": "echo 'publish app'",
+        "dryRunCommand": "",
+        "pipe": true
+      },
       "postPublish": "",
       "prePublish": ""
     },
@@ -54,7 +58,11 @@
       "path": "./src-tauri",
       "manager": "rust",
       "build": "",
-      "publish": "",
+      "publish": {
+        "command": "echo ''",
+        "dryRunCommand": "",
+        "pipe": true
+      },
       "postPublish": "",
       "prePublish": ""
     }

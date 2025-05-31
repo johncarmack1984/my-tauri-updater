@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   version-or-publish:
@@ -16,5 +20,4 @@ jobs:
     uses: ./.github/workflows/publish-to-auto-release.yml
     secrets: inherit
     with:
-      releaseChannel: "stable"
       releaseId: ${{ needs.version-or-publish.outputs.releaseId }}
