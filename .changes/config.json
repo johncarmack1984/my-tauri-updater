@@ -5,10 +5,10 @@
       "version": true,
       "getPublishedVersion": "git tag -l --sort=v:refname \"${ pkg.pkg }-v${ pkgFile.version }\" | sed s/v//",
       "publish": { "command": "echo publish", "pipe": true },
-      "build": { "command": "npm run build", "pipe": true },
+      "build": { "command": "pnpm build", "pipe": true },
       "test": [
-        { "command": "npm run build", "pipe": true },
-        { "command": "npm test", "dryRunCommand": false },
+        { "command": "pnpm build", "pipe": true },
+        { "command": "pnpm test", "dryRunCommand": false },
         { "command": "echo boop", "dryRunCommand": "echo deboop" }
       ],
       "releaseTag": false

@@ -32,7 +32,7 @@ jobs:
     secrets: inherit
   matrix-prep:
     needs: get-version
-    uses: ./.github/workflows/publish-matrix-prep.yml
+    uses: ./.github/workflows/matrix-prep.yml
     with:
       release-channel: ${{ needs.get-version.outputs.release-channel }}
 
@@ -67,10 +67,20 @@ jobs:
         continue-on-error: true
       - uses: actions/checkout@v4
 
-      - name: setup node
-        uses: actions/setup-node@v4
+      - name: Cache pnpm modules
+        uses: actions/cache@v4
         with:
-          node-version: lts/*
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.x.x
+      - run: pnpm i --frozen-lockfile
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -84,7 +94,7 @@ jobs:
           packages: libwebkit2gtk-4.1-dev build-essential librsvg2-dev patchelf webkit2gtk-driver zstd xvfb curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev # libappindicator3-dev
           version: 1.0
 
-      - run: npm install # change this to npm, pnpm or bun depending on which one you use.
+      - run: pnpm install
       - uses: swatinem/rust-cache@v2
       - run: cargo fetch
         working-directory: src-tauri
