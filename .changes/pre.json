@@ -2,6 +2,7 @@
   "tag": "canary",
   "changes": [
     ".changes/fix-the-canary-build.md",
+    ".changes/modularize-workflows.md",
     ".changes/use-a-canary-build.md",
     ".changes/use-a-matrix-fixure-to-publish.md"
   ]
