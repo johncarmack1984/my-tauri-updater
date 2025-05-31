@@ -2,9 +2,6 @@ name: "publish"
 on:
   workflow_call:
     inputs:
-      releaseChannel:
-        default: "stable"
-        type: string
       releaseId:
         required: true
         type: string
@@ -13,7 +10,6 @@ jobs:
   matrix_prep:
     uses: ./.github/workflows/matrix-prep.yml
     with:
-      releaseChannel: ${{ inputs.releaseChannel }}
       releaseId: ${{ inputs.releaseId }}
   publish-tauri:
     needs: matrix_prep

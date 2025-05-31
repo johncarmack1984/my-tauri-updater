@@ -4,22 +4,14 @@
     "javascript": {
       "version": true,
       "getPublishedVersion": "git tag -l --sort=v:refname \"${ pkg.pkg }-v${ pkgFile.version }\" | sed s/v//",
-      "publish": [
-        {
-          "command": "npm run build",
-          "dryRunCommand": "npm run build"
-        },
-        {
-          "command": "echo '<details>\n<summary><em><h4>NPM Publish</h4></em></summary>\n\n```'",
-          "dryRunCommand": true,
-          "pipe": true
-        },
-        {
-          "command": "echo '```\n\n</details>\n'",
-          "dryRunCommand": true,
-          "pipe": true
-        }
-      ]
+      "publish": { "command": "echo publish", "pipe": true },
+      "build": { "command": "npm run build", "pipe": true },
+      "test": [
+        { "command": "npm run build", "pipe": true },
+        { "command": "npm test", "dryRunCommand": false },
+        { "command": "echo boop", "dryRunCommand": "echo deboop" }
+      ],
+      "releaseTag": false
     },
     "rust": {
       "version": true,
@@ -35,13 +27,15 @@
           "dryRunCommand": true,
           "pipe": true
         }
-      ]
+      ],
+      "releaseTag": false
     }
   },
   "packages": {
     "app": {
       "manager": "javascript",
       "path": ".",
+      "releaseTag": "v${ pkgFile.version }",
       "build": {
         "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
         "dryRunCommand": "echo 'gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release'",
@@ -65,6 +59,7 @@
     },
     "tauri": {
       "path": "./src-tauri",
+      "releaseTag": false,
       "manager": "rust",
       "build": {
         "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
