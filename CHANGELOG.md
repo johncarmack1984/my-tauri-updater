@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.5.0-rc.1]
+
+- [`a6a7790`](https://github.com/johncarmack1984/my-tauri-updater/commit/a6a77903c276e708e12d94a222bd59104f74dd30) set retention days (this is too many releases, setting these up is so annoying)
+
 ## \[0.5.0-rc.0]
 
 - [`d2ce26b`](https://github.com/johncarmack1984/my-tauri-updater/commit/d2ce26b4ca4776762f68754960ff52c81af3153b) Move to pnpm
