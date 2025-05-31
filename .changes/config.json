@@ -42,7 +42,10 @@
     "app": {
       "manager": "javascript",
       "path": ".",
-      "build": "",
+      "build": {
+        "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
+        "pipe": true
+      },
       "publish": "",
       "postPublish": "",
       "prePublish": ""

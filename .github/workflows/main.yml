@@ -1,0 +1,20 @@
+name: main workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  version-or-publish:
+    uses: ./.github/workflows/covector-version-or-publish.yml
+    secrets: inherit
+
+  publish-to-auto-release:
+    needs: version-or-publish
+    if: needs.version-or-publish.outputs.releaseId
+    uses: ./.github/workflows/publish-to-auto-release.yml
+    secrets: inherit
+    with:
+      releaseChannel: "stable"
+      releaseId: ${{ needs.version-or-publish.outputs.releaseId }}

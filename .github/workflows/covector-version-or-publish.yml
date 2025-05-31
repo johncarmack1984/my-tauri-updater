@@ -1,9 +1,11 @@
 name: covector version or publish
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+    outputs:
+      releaseId:
+        description: The ID of the created release.
+        value: ${{ jobs.version-or-publish.outputs.releaseId }}
 
 permissions:
   # required for npm provenance
@@ -48,6 +50,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           command: "version-or-publish"
           createRelease: true
+          draftRelease: true
           recognizeContributors: true
 
       - name: Create Pull Request With Versions Bumped
@@ -60,12 +63,3 @@ jobs:
           labels: "version updates"
           branch: "release"
           body: ${{ steps.covector.outputs.change }}
-
-  publish-to-auto-release:
-    needs: version-or-publish
-    if: needs.version-or-publish.outputs.releaseId
-    uses: ./.github/workflows/publish-to-auto-release.yml
-    secrets: inherit
-    with:
-      releaseChannel: "stable"
-      releaseId: ${{ needs.version-or-publish.outputs.releaseId }}
