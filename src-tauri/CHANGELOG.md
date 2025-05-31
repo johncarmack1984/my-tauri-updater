@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.4.2-rc.0]
+
+- [`0b664ae`](https://github.com/johncarmack1984/my-tauri-updater/commit/0b664ae85a1fe7c6860679ba9e4b5b6fa291ea51) Move to release candidate channel.
+
 ## \[0.4.1]
 
 - [`f832e76`](https://github.com/johncarmack1984/my-tauri-updater/commit/f832e76d5a352bcc14ff77c4802f6a0e7e672ccb) Further modularize workflows
