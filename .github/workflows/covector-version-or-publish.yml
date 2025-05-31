@@ -44,11 +44,6 @@ jobs:
       - name: covector version or publish (publish when no change files present)
         uses: jbolda/covector/packages/action@covector-v0.12
         id: covector
-        env:
-          AWS_ACCESS_KEY_ID: ${{ vars.AWS_GITHUB_CI_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_GITHUB_CI_SECRET }}
-          AWS_REGION: ${{ vars.AWS_REGION }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           command: "version-or-publish"
@@ -65,3 +60,19 @@ jobs:
           labels: "version updates"
           branch: "release"
           body: ${{ steps.covector.outputs.change }}
+
+  publish-to-auto-release:
+    needs: version-or-publish
+    if: needs.version-or-publish.outputs.releaseId
+    uses: ./.github/workflows/publish-to-auto-release.yml
+    secrets: inherit
+    with:
+      releaseId: ${{ needs.version-or-publish.outputs.releaseId }}
+      releaseUploadUrl: ${{ needs.version-or-publish.outputs.releaseUploadUrl }}
+      releaseUrl: ${{ needs.version-or-publish.outputs.releaseUrl }}
+      packagesPublished: ${{ needs.version-or-publish.outputs.packagesPublished }}
+      status: ${{ needs.version-or-publish.outputs.status }}
+      templatePipe: ${{ needs.version-or-publish.outputs.templatePipe }}
+      change: ${{ needs.version-or-publish.outputs.change }}
+      commandRan: ${{ needs.version-or-publish.outputs.commandRan }}
+      successfulPublish: ${{ needs.version-or-publish.outputs.successfulPublish }}

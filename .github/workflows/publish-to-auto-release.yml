@@ -1,5 +1,34 @@
 name: "publish"
-on: [pull_request]
+on:
+  workflow_call:
+    inputs:
+      releaseId:
+        required: true
+        type: string
+      releaseUploadUrl:
+        required: true
+        type: string
+      releaseUrl:
+        required: true
+        type: string
+      packagesPublished:
+        required: true
+        type: string
+      status:
+        required: true
+        type: string
+      templatePipe:
+        required: true
+        type: string
+      change:
+        required: true
+        type: string
+      commandRan:
+        required: true
+        type: string
+      successfulPublish:
+        required: true
+        type: string
 
 jobs:
   publish-tauri:
@@ -82,9 +111,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
-          releaseName: "App v__VERSION__"
-          releaseBody: ""
+          releaseId: ${{ inputs.releaseId }}
           prerelease: false
           releaseDraft: true
           includeDebug: true

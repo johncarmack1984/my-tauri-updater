@@ -5,17 +5,60 @@
       "version": true,
       "getPublishedVersion": "git tag -l --sort=v:refname \"${ pkg.pkg }-v${ pkgFile.version }\" | sed s/v//",
       "publish": [
-        "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
-        "sed -i 's/github.com/johncarmack1984/my-tauri-updater/releases/download/${{ pkg.pkg }}-v${{ pkgFile.version }}/my-tauri-updater.s3.us-west-1.amazonaws.com/${{ pkg.pkg }}/${{ pkgFile.version }}/g' release/latest.json",
-        "aws s3 sync \"release/ s3://my-tauri-updater/${{ pkg.pkg }}/${{ pkgFile.version }}/\""
+        {
+          "command": "npm run build",
+          "dryRunCommand": "npm run build"
+        },
+        {
+          "command": "echo '<details>\n<summary><em><h4>NPM Publish</h4></em></summary>\n\n```'",
+          "dryRunCommand": true,
+          "pipe": true
+        },
+        {
+          "command": "echo '```\n\n</details>\n'",
+          "dryRunCommand": true,
+          "pipe": true
+        }
+      ]
+    },
+    "rust": {
+      "version": true,
+      "getPublishedVersion": "git tag -l --sort=v:refname \"${ pkg.pkg }-v${ pkgFile.version }\" | sed s/v//",
+      "publish": [
+        {
+          "command": "echo '<details>\n<summary><em><h4>Cargo Publish</h4></em></summary>\n\n```'",
+          "dryRunCommand": true,
+          "pipe": true
+        },
+        {
+          "command": "echo '```\n\n</details>\n'",
+          "dryRunCommand": true,
+          "pipe": true
+        }
       ]
     }
   },
   "packages": {
     "app": {
-      "path": ".",
       "manager": "javascript",
-      "postPublish": "aws s3 cp \"release/latest.json\" s3://my-tauri-updater/${{ pkg.pkg }}/latest.json"
+      "path": ".",
+      "build": {
+        "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
+        "pipe": true
+      },
+      "publish": {
+        "command": "aws s3 sync \"release/ s3://my-tauri-updater/${{ pkg.pkg }}/${{ pkgFile.version }}/\"",
+        "pipe": true
+      },
+      "postPublish": {
+        "command": "aws s3 cp \"release/latest.json\" s3://my-tauri-updater/${{ pkg.pkg }}/latest.json",
+        "pipe": true
+      },
+      "prePublish": {
+        "command": "sed -i 's/github.com/johncarmack1984/my-tauri-updater/releases/download/${{ pkg.pkg }}-v${{ pkgFile.version }}/my-tauri-updater.s3.us-west-1.amazonaws.com/${{ pkg.pkg }}/${{ pkgFile.version }}/g' release/latest.json",
+        "pipe": true
+      },
+      "releaseTag": "app-v${ pkgFile.version }"
     }
   }
 }
