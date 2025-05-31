@@ -44,27 +44,47 @@
       "path": ".",
       "build": {
         "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
+        "dryRunCommand": "echo 'gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release'",
         "pipe": true
       },
       "publish": {
         "command": "echo 'publish app'",
-        "dryRunCommand": "",
+        "dryRunCommand": "echo 'publish app'",
         "pipe": true
       },
-      "postPublish": "",
-      "prePublish": ""
+      "postPublish": {
+        "command": "echo 'post publish app'",
+        "dryRunCommand": "echo 'post publish app'",
+        "pipe": true
+      },
+      "prePublish": {
+        "command": "echo 'pre publish app'",
+        "dryRunCommand": "echo 'pre publish app'",
+        "pipe": true
+      }
     },
     "tauri": {
       "path": "./src-tauri",
       "manager": "rust",
-      "build": "",
-      "publish": {
-        "command": "echo ''",
+      "build": {
+        "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
+        "pipe": true
+      },
+      "prePublish": {
+        "command": "echo 'pre publish tauri'",
         "dryRunCommand": "",
         "pipe": true
       },
-      "postPublish": "",
-      "prePublish": ""
+      "publish": {
+        "command": "echo 'publish tauri'",
+        "dryRunCommand": "",
+        "pipe": true
+      },
+      "postPublish": {
+        "command": "echo 'post publish tauri'",
+        "dryRunCommand": "",
+        "pipe": true
+      }
     }
   }
 }

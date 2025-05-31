@@ -6,6 +6,9 @@ on:
       releaseId:
         description: The ID of the created release.
         value: ${{ jobs.version-or-publish.outputs.releaseId }}
+      commandRan:
+        description: The command that was run by covector.
+        value: ${{ jobs.version-or-publish.outputs.commandRan }}
 
 permissions:
   # required for npm provenance
