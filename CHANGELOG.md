@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.4.0]
+
+- [`1769e48`](https://github.com/johncarmack1984/my-tauri-updater/commit/1769e48391b768e480af9c9a187bf3b574576f6c) Move to a stable build
+
 ## \[0.3.3-canary.2]
 
 - [`8025622`](https://github.com/johncarmack1984/my-tauri-updater/commit/80256226206f29e48defbef68259da0b9a042d09) Split workflows into modules
