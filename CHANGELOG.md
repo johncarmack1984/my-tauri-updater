@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.5.0-rc.2]
+
+- [`100a78f`](https://github.com/johncarmack1984/my-tauri-updater/commit/100a78f149b193f2b8e16bc4d63842e29232ce39) Simplify build setup in CI
+
 ## \[0.5.0-rc.1]
 
 - [`a6a7790`](https://github.com/johncarmack1984/my-tauri-updater/commit/a6a77903c276e708e12d94a222bd59104f74dd30) set retention days (this is too many releases, setting these up is so annoying)
