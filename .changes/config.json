@@ -42,22 +42,18 @@
     "app": {
       "manager": "javascript",
       "path": ".",
-      "build": {
-        "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
-        "pipe": true
-      },
-      "publish": {
-        "command": "",
-        "pipe": true
-      },
-      "postPublish": {
-        "command": "",
-        "pipe": true
-      },
-      "prePublish": {
-        "command": "",
-        "pipe": true
-      }
+      "build": "",
+      "publish": "",
+      "postPublish": "",
+      "prePublish": ""
+    },
+    "tauri": {
+      "path": "./src-tauri",
+      "manager": "rust",
+      "build": "",
+      "publish": "",
+      "postPublish": "",
+      "prePublish": ""
     }
   }
 }
