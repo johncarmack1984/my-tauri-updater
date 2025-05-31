@@ -1,6 +1,7 @@
 {
   "tag": "rc",
   "changes": [
+    ".changes/further-reduce-workflows-needed.md",
     ".changes/handle-windows-prerelease-versioning.md",
     ".changes/move-to-pnpm.md",
     ".changes/move-to-rc.md",
