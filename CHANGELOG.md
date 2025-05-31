@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.3.3-canary.0]
+
+- [`470962c`](https://github.com/johncarmack1984/my-tauri-updater/commit/470962c37ab54c02dec766f7088c9700628cab58) Add a canary build.
+
 ## \[0.3.2]
 
 - [`f6e28b6`](https://github.com/johncarmack1984/my-tauri-updater/commit/f6e28b631e3af8142c74e129fc388bbee9feafa9) Handle release publishing on the GH side, storage on the S3 side
