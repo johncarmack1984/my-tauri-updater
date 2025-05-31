@@ -1,9 +1,5 @@
 name: "publish"
-
-on:
-  push:
-    branches:
-      - release
+on: [pull_request]
 
 jobs:
   publish-tauri:
@@ -88,9 +84,9 @@ jobs:
         with:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: "App v__VERSION__"
-          releaseBody: ${{ github.event.head_commit.message}}
-          releaseDraft: false
+          releaseBody: ""
           prerelease: false
+          releaseDraft: true
           includeDebug: true
           includeRelease: true
           includeUpdaterJson: true
@@ -111,62 +107,3 @@ jobs:
           printf "\033[1mArtifact Paths : \033[32m${ARTIFACT_PATHS}\033[0m\n"
           printf "\033[1mApp version : \033[32m${APP_VERSION}\033[0m\n"
           printf "\n      ✈️      ✈️      ✈️      \n\n\n\n "
-
-  push-to-s3:
-    permissions:
-      contents: write
-      pull-requests: write
-    needs: publish-tauri
-    runs-on: ubuntu-latest
-
-    name: "Push to S3"
-
-    env:
-      release-id: ${{ needs.publish-tauri.outputs.release-id }}
-      release-html-url: ${{ needs.publish-tauri.outputs.release-html-url }}
-      release-upload-url: ${{ needs.publish-tauri.outputs.release-upload-url }}
-      artifact-paths: ${{ needs.publish-tauri.outputs.artifact-paths }}
-      app-version: ${{ needs.publish-tauri.outputs.app-version }}
-      repo-owner: ${{ github.repository_owner }}
-      repo-name: ${{ github.event.repository.name }}
-      package-name: "app"
-      bucket-name: "my-tauri-updater"
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download release assets
-        run: |
-          echo "gh release download ${{ env.package-name }}-v${{ env.app-version }} -D release"
-          gh release download ${{ env.package-name }}-v${{ env.app-version }} -D release
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Update URLs in latest.json
-        run: |
-          echo "sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ env.package-name }}-v${{ env.app-version }}/${{ env.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ env.package-name }}\/${{ env.app-version }}/g' release/latest.json"
-          sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ env.package-name }}-v${{ env.app-version }}/${{ env.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ env.package-name }}\/${{ env.app-version }}/g' release/latest.json
-      - name: Configure AWS credentials
-        id: creds
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ vars.AWS_GITHUB_CI_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_GITHUB_CI_SECRET }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: Push Assets to S3
-        uses: osiegmar/s3-publisher-action@v1
-        with:
-          bucket: my-tauri-updater
-          dir: release
-          prefix: "${{ env.package-name }}/${{ env.app-version }}/"
-
-      - name: Update latest.json in S3
-        uses: osiegmar/s3-publisher-action@v1
-        with:
-          bucket: my-tauri-updater
-          dir: release
-          includes: "latest.json"
-          prefix: "${{ env.package-name }}/"

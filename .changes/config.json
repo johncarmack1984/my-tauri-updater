@@ -1,0 +1,21 @@
+{
+  "gitSiteUrl": "https://github.com/johncarmack1984/my-tauri-updater/",
+  "pkgManagers": {
+    "javascript": {
+      "version": true,
+      "getPublishedVersion": "git tag -l --sort=v:refname \"${ pkg.pkg }-v${ pkgFile.version }\" | sed s/v//",
+      "publish": [
+        "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
+        "sed -i 's/github.com/johncarmack1984/my-tauri-updater/releases/download/${{ pkg.pkg }}-v${{ pkgFile.version }}/my-tauri-updater.s3.us-west-1.amazonaws.com/${{ pkg.pkg }}/${{ pkgFile.version }}/g' release/latest.json",
+        "aws s3 sync \"release/ s3://my-tauri-updater/${{ pkg.pkg }}/${{ pkgFile.version }}/\""
+      ]
+    }
+  },
+  "packages": {
+    "app": {
+      "path": ".",
+      "manager": "javascript",
+      "postPublish": "aws s3 cp \"release/latest.json\" s3://my-tauri-updater/${{ pkg.pkg }}/latest.json"
+    }
+  }
+}
