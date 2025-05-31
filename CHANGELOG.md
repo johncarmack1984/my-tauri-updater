@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.4.3-rc.0]
+
+- [`0b664ae`](https://github.com/johncarmack1984/my-tauri-updater/commit/0b664ae85a1fe7c6860679ba9e4b5b6fa291ea51) Move to release candidate channel.
+
 ## \[0.4.2]
 
 - [`2b454c1`](https://github.com/johncarmack1984/my-tauri-updater/commit/2b454c1bceca87bdf2e92945e5ed8638165cbb83) Trying out some different configs
