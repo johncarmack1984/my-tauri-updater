@@ -44,9 +44,9 @@ jobs:
       - id: set-matrix
         run: |
           if [ "$RELEASE_CHANNEL" = "stable" ]; then
-            matrixFile="./.github/fixtures/matrix_release_stable.json"
+            matrixFile="./.github/fixtures/matrix_publish_stable.json"
           else
-            matrixFile="./.github/fixtures/matrix_release.json"
+            matrixFile="./.github/fixtures/matrix_publish.json"
           fi
           matrix=$(jq '.' $matrixFile)
           echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
