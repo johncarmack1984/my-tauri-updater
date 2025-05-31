@@ -11,7 +11,7 @@ const getReleaseNumber = (): number => {
   }
 };
 
-const getMsiVersion = (version: string): { version: string } => {
+const getMsiVersion = (version: string): string => {
   const [mainVersion] = version.split("-");
   const [major, minor, patch] = mainVersion
     .split(".")
@@ -23,7 +23,11 @@ const getMsiVersion = (version: string): { version: string } => {
     65535
   );
 
-  return { version: msiVersion.toString() };
+  return msiVersion.toString();
 };
 
-if (!require.main) console.log(getMsiVersion(currentVersion));
+const version = getMsiVersion(currentVersion);
+
+if (import.meta.main) console.log({ version });
+
+export default version;

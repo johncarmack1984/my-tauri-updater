@@ -65,19 +65,14 @@ jobs:
       - uses: swatinem/rust-cache@v2
       - run: cargo fetch
         working-directory: src-tauri
-      - name: Get MSI Version
-        if: matrix.platform == 'windows-latest'
-        id: get-msi-version
+      - name: Set MSI Version
+        if: matrix.platform == 'windows-latest' || matrix.platform == 'windows-11-arm'
+        id: set-msi-version
         run: |
           npm run build:scripts
-          VERSION_JSON=$(node .dist/current-msi-version.js | jq)
-          echo "msi-version=$(echo $VERSION_JSON | jq -r .version)" >> $GITHUB_OUTPUT
+          node .dist\set-msi-version.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set Windows MSI Version
-        if: matrix.platform == 'windows-latest'
-        run: node .dist/set-version.js ${{ steps.get-msi-version.outputs.msi-version }}
 
       - uses: tauri-apps/tauri-action@v0
         id: build
@@ -93,8 +88,6 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           releaseId: ${{ inputs.releaseId }}
-          tagName: "app-v__VERSION__"
-          releaseName: "App v__VERSION__"
           prerelease: false
           releaseDraft: true
           includeDebug: true

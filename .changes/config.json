@@ -55,7 +55,8 @@
         "command": "echo 'pre publish app'",
         "dryRunCommand": "echo 'pre publish app'",
         "pipe": true
-      }
+      },
+      "dependencies": ["tauri"]
     },
     "tauri": {
       "path": "./src-tauri",
