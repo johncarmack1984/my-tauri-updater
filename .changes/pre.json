@@ -1,4 +1,6 @@
 {
   "tag": "canary",
-  "changes": []
+  "changes": [
+    ".changes/use-a-canary-build.md"
+  ]
 }
