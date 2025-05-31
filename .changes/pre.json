@@ -5,6 +5,7 @@
     ".changes/move-to-pnpm.md",
     ".changes/move-to-rc.md",
     ".changes/overhaul-ci.md",
+    ".changes/set-retention-days.md",
     ".changes/simplify-version-set-scripts.md"
   ]
 }
