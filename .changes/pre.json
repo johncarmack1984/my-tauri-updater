@@ -6,6 +6,7 @@
     ".changes/move-to-rc.md",
     ".changes/overhaul-ci.md",
     ".changes/set-retention-days.md",
+    ".changes/simplify-build-setup.md",
     ".changes/simplify-version-set-scripts.md"
   ]
 }
