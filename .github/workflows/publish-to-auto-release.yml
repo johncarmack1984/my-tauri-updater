@@ -5,6 +5,15 @@ on:
       release-id:
         required: true
         type: string
+      matrix:
+        required: true
+        type: string
+      app-version:
+        required: true
+        type: string
+      msi-version:
+        required: false
+        type: string
     outputs:
       release-id:
         description: "The ID of the release created by the Tauri build."
@@ -23,18 +32,13 @@ on:
         value: ${{ jobs.publish-tauri.outputs.app-version }}
 
 jobs:
-  matrix-prep:
-    uses: ./.github/workflows/matrix-prep.yml
-    secrets: inherit
-
   publish-tauri:
-    needs: [matrix-prep]
     name: "${{ matrix.platform }} ${{ matrix.args }}"
     permissions:
       contents: write
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.matrix-prep.outputs.matrix)}}
+      matrix: ${{fromJson(inputs.matrix)}}
 
     env:
       SCCACHE_GHA_ENABLED: ${{ matrix.platform != 'windows-11-arm' && 'true' ||  'false' }}
@@ -110,9 +114,8 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          APP_VERSION: ${{ needs.matrix-prep.outputs.version }}
-          MSI_VERSION: ${{ needs.matrix-prep.outputs.msi-version }}
-          RELEASE_CHANNEL: ${{ needs.matrix-prep.outputs.release-channel }}
+          APP_VERSION: ${{ inputs.app-version }}
+          MSI_VERSION: ${{ inputs.msi-version }}
         with:
           releaseId: ${{ inputs.release-id }}
           appVersion: ${{ matrix.platform == 'windows-latest' && env.MSI_VERSION || matrix.platform == 'windows-11-arm' && env.MSI_VERSION || env.APP_VERSION }}

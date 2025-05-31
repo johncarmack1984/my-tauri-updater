@@ -21,6 +21,9 @@ jobs:
     secrets: inherit
     with:
       release-id: ${{ needs.version-or-publish.outputs.release-id }}
+      matrix: ${{ needs.version-or-publish.outputs.matrix }}
+      app-version: ${{ needs.version-or-publish.outputs.version }}
+      msi-version: ${{ needs.version-or-publish.outputs.msi-version }}
 
   push-to-s3:
     needs: publish-to-auto-release
