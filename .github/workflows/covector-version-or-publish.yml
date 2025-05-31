@@ -67,6 +67,7 @@ jobs:
     uses: ./.github/workflows/publish-to-auto-release.yml
     secrets: inherit
     with:
+      releaseChannel: "canary"
       releaseId: ${{ needs.version-or-publish.outputs.releaseId }}
       releaseUploadUrl: ${{ needs.version-or-publish.outputs.releaseUploadUrl }}
       releaseUrl: ${{ needs.version-or-publish.outputs.releaseUrl }}
