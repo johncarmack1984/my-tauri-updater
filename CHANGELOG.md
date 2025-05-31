@@ -1,5 +1,10 @@
 # Changelog
 
+## \[0.3.3-canary.1]
+
+- [`d41582f`](https://github.com/johncarmack1984/my-tauri-updater/commit/d41582f9aa57cc2241563f4f27bc0bba5b7c136a) Fix the canary build.
+- [`8a38e75`](https://github.com/johncarmack1984/my-tauri-updater/commit/8a38e75160e8795eb109c0676258c3ab4fb793b4) Use ./github/fixtures/matrix_publish.json to run most release builds
+
 ## \[0.3.3-canary.0]
 
 - [`470962c`](https://github.com/johncarmack1984/my-tauri-updater/commit/470962c37ab54c02dec766f7088c9700628cab58) Add a canary build.
