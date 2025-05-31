@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.4.3-rc.2]
+
+- [`9e75d01`](https://github.com/johncarmack1984/my-tauri-updater/commit/9e75d01cace9497f715ed95adc13c8d174f2ed79) Simplify setup of MSI versions
+
 ## \[0.4.3-rc.1]
 
 - [`e461cb0`](https://github.com/johncarmack1984/my-tauri-updater/commit/e461cb073078a61e147ca55991b66fa8b64b33e5) Ensure prerelease versions use syntax that can be understood by Windows MSI installers
