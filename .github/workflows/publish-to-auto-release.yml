@@ -59,25 +59,13 @@ jobs:
           matrix: ${{ steps.set-matrix.outputs.matrix }}
 
   publish-tauri:
+    needs: matrix_prep
     name: "${{ matrix.platform }} ${{ matrix.args }}"
     permissions:
       contents: write
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - platform: "macos-latest"
-            args: "--target aarch64-apple-darwin"
-          - platform: "macos-latest" # for Intel based macs.
-            args: "--target x86_64-apple-darwin"
-          - platform: ubuntu-latest
-            args: ""
-          - platform: ubuntu-24.04-arm
-            args: ""
-          - platform: "windows-latest"
-            args: ""
-          - platform: windows-11-arm
-            args: "--target aarch64-pc-windows-msvc"
+      matrix: ${{fromJson(needs.matrix_prep.outputs.matrix)}}
 
     env:
       SCCACHE_GHA_ENABLED: ${{ matrix.platform != 'windows-11-arm' && 'true' ||  'false' }}
