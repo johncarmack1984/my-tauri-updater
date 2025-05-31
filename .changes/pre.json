@@ -3,6 +3,7 @@
   "changes": [
     ".changes/handle-windows-prerelease-versioning.md",
     ".changes/move-to-rc.md",
+    ".changes/overhaul-ci.md",
     ".changes/simplify-version-set-scripts.md"
   ]
 }
