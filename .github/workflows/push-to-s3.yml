@@ -1,0 +1,70 @@
+name: push to s3
+on:
+  workflow_call:
+    inputs:
+      bucket-name:
+        required: true
+        type: string
+      package-name:
+        required: true
+        type: string
+      release-id:
+        required: true
+        type: string
+      app-version:
+        required: true
+        type: string
+
+jobs:
+  push-to-s3:
+    name: "Push to S3"
+    permissions:
+      contents: write
+      pull-requests: write
+
+    runs-on: ubuntu-latest
+
+    env:
+      repo-owner: ${{ github.repository_owner }}
+      repo-name: ${{ github.event.repository.name }}
+      bucket-name: "my-tauri-updater"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download release assets
+        run: |
+          echo "gh release download ${{ inputs.package-name }}-v${{ inputs.app-version }} -D release"
+          gh release download ${{ inputs.package-name }}-v${{ inputs.app-version }} -D release
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Update URLs in latest.json
+        run: |
+          echo "sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ inputs.package-name }}-v${{ inputs.app-version }}/${{ env.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ inputs.package-name }}\/${{ inputs.app-version }}/g' release/latest.json"
+          sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ inputs.package-name }}-v${{ inputs.app-version }}/${{ env.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ inputs.package-name }}\/${{ inputs.app-version }}/g' release/latest.json
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ vars.AWS_GITHUB_CI_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_GITHUB_CI_SECRET }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Push Assets to S3
+        uses: osiegmar/s3-publisher-action@v1
+        with:
+          bucket: my-tauri-updater
+          dir: release
+          prefix: "${{ inputs.package-name }}/${{ inputs.app-version }}/"
+
+      - name: Update latest.json in S3
+        uses: osiegmar/s3-publisher-action@v1
+        if: ${{ inputs.release-id }}
+        with:
+          bucket: my-tauri-updater
+          dir: release
+          includes: "latest.json"
+          prefix: "${{ inputs.package-name }}/"

@@ -8,56 +8,14 @@ on:
       releaseId:
         required: true
         type: string
-      releaseUploadUrl:
-        required: true
-        type: string
-      releaseUrl:
-        required: true
-        type: string
-      packagesPublished:
-        required: true
-        type: string
-      status:
-        required: true
-        type: string
-      templatePipe:
-        required: true
-        type: string
-      change:
-        required: true
-        type: string
-      commandRan:
-        required: true
-        type: string
-      successfulPublish:
-        required: true
-        type: string
 
 jobs:
   matrix_prep:
-    runs-on: "ubuntu-latest"
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
-      - id: set-matrix
-        run: |
-          if [ "$RELEASE_CHANNEL" = "stable" ]; then
-            matrixFile="./.github/fixtures/matrix_publish_stable.json"
-          else
-            matrixFile="./.github/fixtures/matrix_publish.json"
-          fi
-          matrix=$(jq '.' $matrixFile)
-          echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
-        env:
-          RELEASE_CHANNEL: ${{ inputs.releaseChannel }}
-      - name: Print matrix
-        run: |
-          echo "matrix=$matrix"
-        env:
-          matrix: ${{ steps.set-matrix.outputs.matrix }}
-
+    # runs-on: "ubuntu-latest"
+    uses: ./.github/workflows/matrix-prep.yml
+    with:
+      releaseChannel: ${{ inputs.releaseChannel }}
+      releaseId: ${{ inputs.releaseId }}
   publish-tauri:
     needs: matrix_prep
     name: "${{ matrix.platform }} ${{ matrix.args }}"
@@ -152,59 +110,11 @@ jobs:
   push-to-s3:
     name: "Push to S3"
     needs: [publish-tauri]
-    permissions:
-      contents: write
-      pull-requests: write
+    uses: ./.github/workflows/push-to-s3.yml
+    secrets: inherit
 
-    runs-on: ubuntu-latest
-
-    env:
+    with:
       release-id: ${{ needs.publish-tauri.outputs.release-id }}
-      release-html-url: ${{ needs.publish-tauri.outputs.release-html-url }}
-      release-upload-url: ${{ needs.publish-tauri.outputs.release-upload-url }}
-      artifact-paths: ${{ needs.publish-tauri.outputs.artifact-paths }}
       app-version: ${{ needs.publish-tauri.outputs.app-version }}
-      repo-owner: ${{ github.repository_owner }}
-      repo-name: ${{ github.event.repository.name }}
       package-name: "app"
       bucket-name: "my-tauri-updater"
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download release assets
-        run: |
-          echo "gh release download ${{ env.package-name }}-v${{ env.app-version }} -D release"
-          gh release download ${{ env.package-name }}-v${{ env.app-version }} -D release
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Update URLs in latest.json
-        run: |
-          echo "sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ env.package-name }}-v${{ env.app-version }}/${{ env.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ env.package-name }}\/${{ env.app-version }}/g' release/latest.json"
-          sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ env.package-name }}-v${{ env.app-version }}/${{ env.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ env.package-name }}\/${{ env.app-version }}/g' release/latest.json
-      - name: Configure AWS credentials
-        id: creds
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ vars.AWS_GITHUB_CI_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_GITHUB_CI_SECRET }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: Push Assets to S3
-        uses: osiegmar/s3-publisher-action@v1
-        with:
-          bucket: my-tauri-updater
-          dir: release
-          prefix: "${{ env.package-name }}/${{ env.app-version }}/"
-
-      - name: Update latest.json in S3
-        uses: osiegmar/s3-publisher-action@v1
-        if: ${{ needs.publish-tauri.outputs.release-id}}
-        with:
-          bucket: my-tauri-updater
-          dir: release
-          includes: "latest.json"
-          prefix: "${{ env.package-name }}/"

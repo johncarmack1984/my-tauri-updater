@@ -67,13 +67,5 @@ jobs:
     uses: ./.github/workflows/publish-to-auto-release.yml
     secrets: inherit
     with:
-      releaseChannel: "canary"
+      releaseChannel: "stable"
       releaseId: ${{ needs.version-or-publish.outputs.releaseId }}
-      releaseUploadUrl: ${{ needs.version-or-publish.outputs.releaseUploadUrl }}
-      releaseUrl: ${{ needs.version-or-publish.outputs.releaseUrl }}
-      packagesPublished: ${{ needs.version-or-publish.outputs.packagesPublished }}
-      status: ${{ needs.version-or-publish.outputs.status }}
-      templatePipe: ${{ needs.version-or-publish.outputs.templatePipe }}
-      change: ${{ needs.version-or-publish.outputs.change }}
-      commandRan: ${{ needs.version-or-publish.outputs.commandRan }}
-      successfulPublish: ${{ needs.version-or-publish.outputs.successfulPublish }}
