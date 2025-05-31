@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.4.2]
+
+- [`2b454c1`](https://github.com/johncarmack1984/my-tauri-updater/commit/2b454c1bceca87bdf2e92945e5ed8638165cbb83) Trying out some different configs
+
 ## \[0.4.1]
 
 - [`f832e76`](https://github.com/johncarmack1984/my-tauri-updater/commit/f832e76d5a352bcc14ff77c4802f6a0e7e672ccb) Further modularize workflows
