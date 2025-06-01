@@ -1,5 +1,14 @@
 # Changelog
 
+## \[0.5.7]
+
+- [`5c1d48a`](https://github.com/johncarmack1984/my-tauri-updater/commit/5c1d48acaf2088d8062b125fb48419f014eb77e2) Generalize post-publish job
+- [`9d3455c`](https://github.com/johncarmack1984/my-tauri-updater/commit/9d3455cd487f14b51355eac3db1e0d69a1269912) Test getting values from the covector action output
+
+### Dependencies
+
+- Upgraded to `frontend@0.5.7`
+
 ## \[0.5.6]
 
 - [`1216cc7`](https://github.com/johncarmack1984/my-tauri-updater/commit/1216cc706ec27c1f1bd03da437cbef4cef29501b) Ensure all dependencies needed can work in all workflows.
