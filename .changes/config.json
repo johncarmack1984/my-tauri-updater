@@ -48,7 +48,7 @@
         "pipe": true
       },
       "prePublish": {
-        "command": "pnpm i && pnpm build:scripts && node .dist/set-version.mjs && pnpm i",
+        "command": "echo 'pre publish app'",
         "dryRunCommand": "echo 'pre publish app'",
         "pipe": true
       },
