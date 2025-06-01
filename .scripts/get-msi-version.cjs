@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
-import currentVersion from "./get-version";
+import getVersion from "./get-version.cjs";
 
-const getReleaseNumber = (): number => {
+const getReleaseNumber = () => {
   try {
     const tagCount = execSync("git tag | wc -l", { encoding: "utf-8" });
     return Number.parseInt(tagCount, 10) + 1;
@@ -11,7 +11,7 @@ const getReleaseNumber = (): number => {
   }
 };
 
-const getReleaseChannelNumber = (preRelease?: string): number => {
+const getReleaseChannelNumber = (preRelease) => {
   if (!preRelease) return 0; // Stable release
   switch (preRelease.split(".")[0]) {
     case "rc":
@@ -23,19 +23,19 @@ const getReleaseChannelNumber = (preRelease?: string): number => {
   }
 };
 
-const getReleaseChannelVersionNumber = (preRelease?: string): number => {
+const getReleaseChannelVersionNumber = (preRelease) => {
   if (!preRelease) return 0; // Stable release
   return Number(preRelease.split(".")[1]);
 };
 
-const getReleaseChannel = (preRelease?: string): [number, number] => {
+const getReleaseChannel = (preRelease) => {
   return [
     getReleaseChannelNumber(preRelease),
     getReleaseChannelVersionNumber(preRelease),
   ];
 };
 
-const getMsiVersion = (version: string): string => {
+const getMsiVersion = (version) => {
   const [mainVersion, preRelease] = version.split("-");
   const [preC, preV] = getReleaseChannel(preRelease);
   if (preC === 0 && preV === 0) {
@@ -49,6 +49,4 @@ const getMsiVersion = (version: string): string => {
   return `${major}.${minor}.${patch}-${preC + preV + releaseNumber}`;
 };
 
-const version = getMsiVersion(currentVersion);
-
-export default version;
+module.exports = () => getMsiVersion(getVersion());
