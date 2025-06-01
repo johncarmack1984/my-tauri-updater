@@ -1,5 +1,13 @@
 # Changelog
 
+## \[0.5.3]
+
+- [`2c284a6`](https://github.com/johncarmack1984/my-tauri-updater/commit/2c284a659e15efd2b386bb92d1f7c31419821025) Cleaner, more automated, more readable, more modular check & publish workflows
+
+### Dependencies
+
+- Upgraded to `frontend@0.5.3`
+
 ## \[0.5.2]
 
 - [`be9ff22`](https://github.com/johncarmack1984/my-tauri-updater/commit/be9ff229e9b89ef194ebba0237b7cddd127aaf1b) Explicitly set workflow lockfile handling
