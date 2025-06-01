@@ -66,11 +66,10 @@ jobs:
         with:
           key: ${{ steps.install-rust.outputs.cachekey }}
           cache-all-crates: true
-          cache-directories: |
+          workspaces: |
             ./src-tauri/target
           cache-on-failure: true
 
-      - run: pnpm install
       - run: pnpm build:scripts
       - id: set-version
         run: node .dist/set-version.mjs

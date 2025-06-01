@@ -28,6 +28,11 @@
           "pipe": true
         }
       ],
+      "postPublish": {
+        "command": "cargo fetch",
+        "dryRunCommand": "echo 'cargo fetch'",
+        "pipe": true
+      },
       "releaseTag": false
     }
   },
@@ -37,8 +42,13 @@
       "path": ".",
       "releaseTag": false,
       "build": {
-        "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
-        "dryRunCommand": "echo 'gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release'",
+        "command": "pnpm build",
+        "dryRunCommand": "echo 'pnpm build'",
+        "pipe": true
+      },
+      "prePublish": {
+        "command": "pnpm i && pnpm build:scripts && node .dist/set-version.mjs && pnpm i",
+        "dryRunCommand": "echo 'pre publish app'",
         "pipe": true
       },
       "publish": {
@@ -47,13 +57,8 @@
         "pipe": true
       },
       "postPublish": {
-        "command": "echo 'post publish app'",
-        "dryRunCommand": "echo 'post publish app'",
-        "pipe": true
-      },
-      "prePublish": {
-        "command": "echo 'pre publish app'",
-        "dryRunCommand": "echo 'pre publish app'",
+        "command": "pnpm i --lockfile-only",
+        "dryRunCommand": "echo 'pnpm i --lockfile-only'",
         "pipe": true
       }
     },
@@ -62,12 +67,12 @@
       "releaseTag": "${ pkg.pkg }-v${ pkgFile.version }",
       "manager": "rust",
       "build": {
-        "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
+        "command": "cargo check",
         "pipe": true
       },
       "prePublish": {
         "command": "echo 'pre publish tauri'",
-        "dryRunCommand": "",
+        "dryRunCommand": "echo 'pre publish tauri'",
         "pipe": true
       },
       "publish": {
@@ -76,8 +81,8 @@
         "pipe": true
       },
       "postPublish": {
-        "command": "echo 'post publish tauri'",
-        "dryRunCommand": "",
+        "command": "cargo fetch",
+        "dryRunCommand": "echo 'cargo fetch'",
         "pipe": true
       },
       "dependencies": ["frontend"]
