@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.5.2]
+
+- [`be9ff22`](https://github.com/johncarmack1984/my-tauri-updater/commit/be9ff229e9b89ef194ebba0237b7cddd127aaf1b) Explicitly set workflow lockfile handling
+
 ## \[0.5.1]
 
 - [`72eebaa`](https://github.com/johncarmack1984/my-tauri-updater/commit/72eebaa76b6b11f9c5e6faf02d8741498237025a) Cleanup workflows
