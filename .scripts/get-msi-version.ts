@@ -38,6 +38,9 @@ const getReleaseChannel = (preRelease?: string): [number, number] => {
 const getMsiVersion = (version: string): string => {
   const [mainVersion, preRelease] = version.split("-");
   const [preC, preV] = getReleaseChannel(preRelease);
+  if (preC === 0 && preV === 0) {
+    return mainVersion; // Stable release, no pre-release info
+  }
   const [major, minor, patch] = mainVersion
     .split(".")
     .map((n) => Number.parseInt(n, 10));
