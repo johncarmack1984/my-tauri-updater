@@ -1,6 +1,6 @@
 {
   "name": "my-tauri-updater",
-  "author": "John Carmack",
+  "author": "John Carmack <me@johncarmack.com> (https://www.johncarmack.com/)",
   "private": true,
   "version": "0.5.0",
   "type": "module",
