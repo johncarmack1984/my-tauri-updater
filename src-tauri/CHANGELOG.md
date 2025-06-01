@@ -1,5 +1,13 @@
 # Changelog
 
+## \[0.5.2]
+
+- [`9bd17ef`](https://github.com/johncarmack1984/my-tauri-updater/commit/9bd17ef37650864b32c60cdac15ecbd2c4aa5273) Explicitly set workflow lockfile handling
+
+### Dependencies
+
+- Upgraded to `frontend@0.5.2`
+
 ## \[0.5.1]
 
 - [`72eebaa`](https://github.com/johncarmack1984/my-tauri-updater/commit/72eebaa76b6b11f9c5e6faf02d8741498237025a) Cleanup workflows
