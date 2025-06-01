@@ -22,16 +22,14 @@ jobs:
     with:
       release-id: ${{ needs.version-or-publish.outputs.release-id }}
       matrix: ${{ needs.version-or-publish.outputs.matrix }}
-      app-version: ${{ needs.version-or-publish.outputs.version }}
-      msi-version: ${{ needs.version-or-publish.outputs.msi-version }}
 
   push-to-s3:
-    needs: publish-to-auto-release
+    needs: [version-or-publish, publish-to-auto-release]
     uses: ./.github/workflows/push-to-s3.yml
     secrets: inherit
 
     with:
-      release-id: ${{ needs.publish-to-auto-release.outputs.release-id }}
-      app-version: ${{ needs.publish-to-auto-release.outputs.app-version }}
+      release-id: ${{ needs.version-or-publish.outputs.release-id }}
+      app-version: ${{ needs.version-or-publish.outputs.app-version }}
       package-name: "app"
       bucket-name: "my-tauri-updater"

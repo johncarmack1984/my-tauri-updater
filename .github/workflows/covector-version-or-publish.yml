@@ -5,21 +5,9 @@ on:
     outputs:
       release-id:
         description: The ID of the created release.
-        value: ${{ jobs.version-or-publish.outputs.releaseId }}
-      command-ran:
-        description: The command that was run by covector.
-        value: ${{ jobs.version-or-publish.outputs.commandRan }}
-      version:
-        value: ${{ jobs.version-or-publish.outputs.version }}
-        description: "The version of the application."
-      msi-version:
-        value: ${{ jobs.version-or-publish.outputs.msi-version }}
-        description: "The version of the application."
-      release-channel:
-        value: ${{ jobs.version-or-publish.outputs.release-channel }}
-        description: "The version of the application."
-      release-type:
-        value: ${{ jobs.version-or-publish.outputs.release-type }}
+        value: ${{ jobs.version-or-publish.outputs.release-id }}
+      app-version:
+        value: ${{ jobs.version-or-publish.outputs.app-version }}
         description: "The version of the application."
 
       matrix:
@@ -27,11 +15,8 @@ on:
         value: ${{ jobs.version-or-publish.outputs.matrix }}
 
 permissions:
-  # required for npm provenance
   id-token: write
-  # required to create the GitHub Release
   contents: write
-  # required for creating the Version Packages Release
   pull-requests: write
   issues: write
 
@@ -40,45 +25,27 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 65
     outputs:
-      change: ${{ steps.covector.outputs.change }}
-      commandRan: ${{ steps.covector.outputs.commandRan }}
-      successfulPublish: ${{ steps.covector.outputs.successfulPublish }}
-      releaseId: ${{ steps.covector.outputs.releaseId }}
-      packagesPublished: ${{ steps.covector.outputs.packagesPublished }}
-      releaseUploadUrl: ${{ steps.covector.outputs.releaseUploadUrl }}
-      releaseUrl: ${{ steps.covector.outputs.releaseUrl }}
-      status: ${{ steps.covector.outputs.status }}
-      templatePipe: ${{ steps.covector.outputs.templatePipe }}
-      version: ${{ steps.get-version.outputs.version }}
-      msi-version: ${{ steps.get-msi-version.outputs.msi-version }}
-      release-channel: ${{ steps.get-release-channel.outputs.release-channel }}
-      release-type: ${{ steps.get-release-type.outputs.release-type }}
+      release-id: ${{ steps.covector.outputs.releaseId }}
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      app-version: ${{ steps.get-version.outputs.version }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # required for use of git history
-
-      - name: Cache pnpm modules
-        uses: actions/cache@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
         with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-      - uses: actions/setup-node@v4
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10.x.x
-      - run: pnpm i --frozen-lockfile
-      - run: pnpm build:scripts
-      - id: get-release-type
-        run: |
-          RELEASE_TYPE=$(node .dist/print-release-type.mjs)
-          echo "release-type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          cache: "pnpm"
+
+      - run: pnpm install
 
       - name: Configure AWS credentials
         id: creds
@@ -109,6 +76,12 @@ jobs:
           branch: "release"
           body: ${{ steps.covector.outputs.change }}
 
+      - uses: actions/checkout@v4
+        if: steps.covector.outputs.commandRan == 'version'
+        with:
+          ref: "release"
+
+      - run: pnpm i
       - run: pnpm build:scripts
 
       - id: get-version
@@ -143,18 +116,12 @@ jobs:
         env:
           matrix: ${{ steps.set-matrix.outputs.matrix }}
 
-      - name: "Output: ${{ steps.get-release-channel.outputs.release-channel }} ${{ steps.get-release-type.outputs.release-type }}: ${{ steps.get-version.outputs.version }}"
+      - name: "${{ steps.get-version.outputs.version }}"
         env:
-          RELEASE_CHANNEL: ${{ steps.get-release-channel.outputs.release-channel }}
-          RELEASE_TYPE: ${{ steps.get-release-type.outputs.release-type }}
           CURRENT_VERSION: ${{ steps.get-version.outputs.version }}
           MSI_VERSION: ${{ steps.get-msi-version.outputs.msi-version }}
-          BUILD_MATRIX: ${{ steps.set-matrix.outputs.matrix }}
         run: |
           printf "\n\n\n      ✈️      ✈️      ✈️      \n\n"
-          printf "\033[1mRelease Channel: \033[33mv${RELEASE_CHANNEL}\033[0m\n"
-          printf "\033[1mRelease Type : \033[33m${RELEASE_TYPE}\033[0m\n"
-          printf "\033[1mVersion : \033[32mv${CURRENT_VERSION}\033[0m\n"
+          printf "\033[1mVersion : \033[32m${CURRENT_VERSION}\033[0m\n"
           printf "\033[1mMSI Version : \033[33m${MSI_VERSION}\033[0m\n"
-          printf "\033[1mMatrix : \033[32mv${BUILD_MATRIX}\033[0m\n"
           printf "\n      ✈️      ✈️      ✈️      \n\n\n\n "

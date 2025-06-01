@@ -43,7 +43,7 @@ const getMsiVersion = (version: string): string => {
     .map((n) => Number.parseInt(n, 10));
   const releaseNumber = getReleaseNumber();
 
-  return `${major}.${minor}.${patch}-${preC}${preV}${releaseNumber}`;
+  return `${major}.${minor}.${patch}-${preC + preV + releaseNumber}`;
 };
 
 const version = getMsiVersion(currentVersion);
