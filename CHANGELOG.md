@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.5.0-rc.4]
+
+- [`f7a72cd`](https://github.com/johncarmack1984/my-tauri-updater/commit/f7a72cdbc7a9187e2cdccda56e374780e114cd6c) Get channel from node script
+
 ## \[0.5.0-rc.3]
 
 - [`c9ad908`](https://github.com/johncarmack1984/my-tauri-updater/commit/c9ad908a78d2182dadd31456e71fd705a390cb88) Further reduce workflows needed
