@@ -3,7 +3,7 @@
   "pkgManagers": {
     "javascript": {
       "version": true,
-      "getPublishedVersion": "git tag -l --sort=v:refname \"${ pkg.pkg }-v${ pkgFile.version }\" | sed s/v//",
+      "getPublishedVersion": "git tag -l --sort=v:refname ${ pkg.pkg }-v${ pkgFile.version } | xargs | cut -d ' ' -f1 | xargs",
       "publish": { "command": "echo publish", "pipe": true },
       "build": { "command": "pnpm build", "pipe": true },
       "test": [
@@ -15,7 +15,7 @@
     },
     "rust": {
       "version": true,
-      "getPublishedVersion": "git tag -l --sort=v:refname \"${ pkg.pkg }-v${ pkgFile.version }\" | sed s/v//",
+      "getPublishedVersion": "git tag -l --sort=v:refname ${ pkg.pkg }-v${ pkgFile.version } | xargs | cut -d ' ' -f1 | xargs",
       "publish": [
         {
           "command": "echo '<details>\n<summary><em><h4>Cargo Publish</h4></em></summary>\n\n```'",
@@ -39,7 +39,7 @@
   "packages": {
     "frontend": {
       "manager": "javascript",
-      "getPublishedVersion": "git tag -l --sort=v:refname \"app-v\" | sed s/v//",
+      "getPublishedVersion": "git tag -l --sort=-v:refname 'app-*' | xargs | cut -d ' ' -f1 | xargs",
       "path": ".",
       "releaseTag": false,
       "build": {
@@ -57,11 +57,19 @@
         "dryRunCommand": "echo 'publish app'",
         "pipe": true
       },
-      "postPublish": {
-        "command": "pnpm i --lockfile-only",
-        "dryRunCommand": "echo 'pnpm i --lockfile-only'",
-        "pipe": true
-      }
+      "postPublish": [
+        {
+          "command": "pnpm i --lockfile-only",
+          "dryRunCommand": "echo 'pnpm i --lockfile-only'",
+          "pipe": true
+        },
+        {
+          "command": [
+            "gh release download ${ pkg.pkg }-v${ pkgFile.version } --dir release",
+            "aws s3 sync release/ s3://my-tauri-updater/${ pkg.pkg }/${ pkgFile.version }/"
+          ]
+        }
+      ]
     },
     "app": {
       "path": "./src-tauri",

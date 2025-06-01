@@ -6,10 +6,6 @@ on:
       release-id:
         description: The ID of the created release.
         value: ${{ jobs.version-or-publish.outputs.release-id }}
-      app-version:
-        value: ${{ jobs.version-or-publish.outputs.app-version }}
-        description: "The version of the application."
-
       matrix:
         description: "Matrix for publish jobs"
         value: ${{ jobs.version-or-publish.outputs.matrix }}
@@ -33,7 +29,10 @@ jobs:
     outputs:
       release-id: ${{ steps.covector.outputs.releaseId }}
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-      app-version: ${{ steps.get-version.outputs.version }}
+      packages-published: ${{ steps.covector.outputs.packagesPublished }}
+      change: ${{ steps.covector.outputs.change }}
+      commandRan: ${{ steps.covector.outputs.commandRan }}
+      successfulPublish: ${{ steps.covector.outputs.successfulPublish }}
 
     steps:
       - uses: mozilla-actions/sccache-action@v0.0.9
@@ -87,6 +86,22 @@ jobs:
           command: "version-or-publish"
           createRelease: true
           recognizeContributors: true
+      - run: echo "commandRan=${{ steps.covector.outputs.commandRan }}"
+      - run: echo "packagesPublished=${{ steps.covector.outputs.packagesPublished }}"
+      - name: echo "change:<see output>"
+        run: |
+          echo "change:"
+          echo ${{ toJson(steps.covector.outputs.change) }}
+      - run: echo "releaseId=${{ steps.covector.outputs.releaseId }}"
+      - run: echo "successfulPublish=${{ steps.covector.outputs.successfulPublish }}"
+      - run: echo "releaseUrl=${{ steps.covector.outputs.releaseUrl }}"
+      - run: echo "releaseUploadUrl=${{ steps.covector.outputs.releaseUploadUrl }}"
+      - run: echo "status=${{ steps.covector.outputs.status }}"
+      - name: echo "templatePipe:<see output>"
+        run: |
+          echo "templatePipe:"
+          echo "causes an error if the output is printed"
+          # echo ${{ toJson(steps.covector.outputs.templatePipe) }}
 
       - run: pnpm i --lockfile-only
       - run: cargo tree --depth 0
