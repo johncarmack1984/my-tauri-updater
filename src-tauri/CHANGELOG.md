@@ -1,5 +1,13 @@
 # Changelog
 
+## \[0.5.1]
+
+- [`950f0ad`](https://github.com/johncarmack1984/my-tauri-updater/commit/950f0add950dcc1b0f7d8480bc2a101ab008e2e6) Handle Windows versioning in workflows without prerelease syntax
+
+### Dependencies
+
+- Upgraded to `frontend@0.5.1`
+
 ## \[0.5.0]
 
 - [`658a232`](https://github.com/johncarmack1984/my-tauri-updater/commit/658a232f0d9b6948331206a185cdbf9fd4f16820) Take updater out of pre-release and into stable.
