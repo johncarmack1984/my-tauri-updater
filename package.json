@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:scripts": "tsup",
     "preview": "vite preview",
     "tauri": "tauri",
     "test": "vitest"
@@ -24,7 +23,6 @@
     "react-dom": "^19.1.0",
     "string-argv": "^0.3.2",
     "taurpc": "^1.8.1",
-    "tsup": "^8.5.0",
     "zod": "^3.25.39"
   },
   "devDependencies": {

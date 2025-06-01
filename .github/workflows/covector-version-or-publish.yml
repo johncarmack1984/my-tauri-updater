@@ -34,7 +34,7 @@ jobs:
     timeout-minutes: 65
     outputs:
       release-id: ${{ steps.covector.outputs.releaseId }}
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix: ${{ steps.set-build-matrix.outputs.result }}
       packages-published: ${{ steps.get-packages-published.outputs.result }}
       change: ${{ steps.covector.outputs.change }}
       command-ran: ${{ steps.covector.outputs.commandRan }}
@@ -45,11 +45,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: install dependencies (ubuntu only)
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: libwebkit2gtk-4.1-dev build-essential librsvg2-dev patchelf webkit2gtk-driver zstd xvfb curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev  libsoup-3.0-dev libgdal-dev libclang-dev # libappindicator3-dev
           version: 1.0
+
+      - name: git config
+        run: |
+          git config --global user.name "${{ github.event.pusher.name }}"
+          git config --global user.email "${{ github.event.pusher.email }}"
 
       - uses: pnpm/action-setup@v4
         with:
@@ -91,46 +97,38 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           command: "version-or-publish"
           createRelease: true
+          draftRelease: true
           recognizeContributors: true
-      - run: echo "commandRan=${{ steps.covector.outputs.commandRan }}"
 
-      - id: get-packages-published
+      - name: get packages published
+        if: steps.covector.outputs.commandRan == 'publish'
+        id: get-packages-published
         uses: actions/github-script@v7
         env:
           PACKAGES: ${{ steps.covector.outputs.packagesPublished }}
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: json
           script: |
-            const pkgStr = process.env.PACKAGES ?? "";
-            const packages = pkgStr.length ? pkgStr.split(",") : [];
-            if (packages.length === 0) {
-              console.log("No packages published.");
-              return packages;
-            }
-            console.log("Packages published:", packages);
-            return packages.map(e=>({package:e}))
+            const script = require('./.scripts/get-packages-published.cjs');
+            return await script({github, context});
 
-      - uses: actions/github-script@v7
-        id: print-change
-        if: steps.covector.outputs.change != ''
-        env:
-          CHANGE: ${{ steps.covector.outputs.change }}
+      - name: set build matrix
+        if: steps.covector.outputs.commandRan == 'publish'
+        id: set-build-matrix
+        uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: json
           script: |
-            console.log("change: ",JSON.stringify(process.env.CHANGE,null,2))
-      - run: echo "releaseId=${{ steps.covector.outputs.releaseId }}"
-      - run: echo "successfulPublish=${{ steps.covector.outputs.successfulPublish }}"
-      - run: echo "releaseUrl=${{ steps.covector.outputs.releaseUrl }}"
-      - run: echo "releaseUploadUrl=${{ steps.covector.outputs.releaseUploadUrl }}"
-      - run: echo "status=${{ steps.covector.outputs.status }}"
-      - name: echo "templatePipe:<see output>"
-        run: |
-          echo "templatePipe:"
-          echo "causes an error if the output is printed"
-          # echo ${{ toJson(steps.covector.outputs.templatePipe) }}
+            const script = require('./.scripts/get-build-matrix.cjs');
+            return await script({github, context});
 
       - run: pnpm i --lockfile-only
+        if: steps.covector.outputs.commandRan == 'version'
       - run: cargo tree --depth 0
         working-directory: src-tauri
+        if: steps.covector.outputs.commandRan == 'version'
 
       - name: Create Pull Request With Versions Bumped
         id: cpr
@@ -143,53 +141,3 @@ jobs:
           labels: "version updates"
           branch: "release"
           body: ${{ steps.covector.outputs.change }}
-
-      - uses: actions/checkout@v4
-        if: steps.covector.outputs.commandRan == 'version'
-        with:
-          ref: "release"
-
-      - run: pnpm i
-      - run: pnpm build:scripts
-
-      - id: get-version
-        run: |
-          VERSION=$(node .dist/print-version.mjs)
-          echo "version=$(echo $VERSION | cut -d ' ' -f1)" >> $GITHUB_OUTPUT
-
-      - id: get-msi-version
-        run: |
-          MSI_VERSION=$(node .dist/print-msi-version.mjs)
-          echo "msi-version=$MSI_VERSION" >> $GITHUB_OUTPUT
-
-      - id: get-release-channel
-        run: |
-          RELEASE_CHANNEL=$(node .dist/print-release-channel.mjs)
-          echo "release-channel=$RELEASE_CHANNEL" >> $GITHUB_OUTPUT
-
-      - id: set-matrix
-        run: |
-          if [ "$RELEASE_CHANNEL" = "stable" ]; then
-            matrixFile="./.github/fixtures/matrix_publish_stable.json"
-          else
-            matrixFile="./.github/fixtures/matrix_publish.json"
-          fi
-            matrix=$(jq '.' $matrixFile)
-            echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
-        env:
-          RELEASE_CHANNEL: ${{ steps.get-release-channel.outputs.release-channel }}
-      - name: Print matrix
-        run: |
-          echo "matrix=$matrix"
-        env:
-          matrix: ${{ steps.set-matrix.outputs.matrix }}
-
-      - name: "v${{ steps.get-version.outputs.version }}"
-        env:
-          CURRENT_VERSION: ${{ steps.get-version.outputs.version }}
-          MSI_VERSION: ${{ steps.get-msi-version.outputs.msi-version }}
-        run: |
-          printf "\n\n\n      ✈️      ✈️      ✈️      \n\n"
-          printf "\033[1mVersion : \033[32m${CURRENT_VERSION}\033[0m\n"
-          printf "\033[1mMSI Version : \033[33m${MSI_VERSION}\033[0m\n"
-          printf "\n      ✈️      ✈️      ✈️      \n\n\n\n "

@@ -1,0 +1,14 @@
+[
+  {
+    "platform": "macos-latest",
+    "args": "--target aarch64-apple-darwin",
+    "includeDebug": true,
+    "includeRelease": true
+  },
+  {
+    "platform": "ubuntu-latest",
+    "args": "",
+    "includeDebug": true,
+    "includeRelease": false
+  }
+]
