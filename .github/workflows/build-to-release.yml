@@ -1,46 +1,50 @@
-name: "publish"
+name: build to release
 on:
   workflow_call:
     inputs:
+      package:
+        required: true
+        type: string
       release-id:
         required: true
         type: string
-      matrix:
+      platform:
         required: true
         type: string
+      args:
+        required: true
+        type: string
+      include-debug:
+        required: true
+        type: boolean
+      include-release:
+        required: true
+        type: boolean
 
 jobs:
   publish-tauri:
-    name: "${{ matrix.platform }} ${{ matrix.args }}"
+    name: "${{ inputs.platform }} ${{ inputs.args }}"
     permissions:
       contents: write
-    strategy:
-      fail-fast: false
-      matrix: ${{fromJson(inputs.matrix)}}
 
     env:
-      SCCACHE_GHA_ENABLED: ${{ matrix.platform != 'windows-11-arm' && true ||  false }}
-      RUSTC_WRAPPER: ${{ matrix.platform != 'windows-11-arm' && 'sccache' ||  null }}
+      SCCACHE_GHA_ENABLED: ${{ inputs.platform != 'windows-11-arm' && true ||  false }}
+      RUSTC_WRAPPER: ${{ inputs.platform != 'windows-11-arm' && 'sccache' ||  null }}
       CARGO_TERM_COLOR: always
       CARGO_INCREMENTAL: 0
 
-    outputs:
-      release-id: ${{ steps.build.outputs.releaseId }}
-      release-html-url: ${{ steps.build.outputs.releaseHtmlUrl }}
-      release-upload-url: ${{ steps.build.outputs.releaseUploadUrl }}
-      artifact-paths: "${{ steps.build.outputs.artifactPaths }}"
-      app-version: ${{ steps.build.outputs.appVersion }}
-
-    runs-on: ${{ matrix.platform }}
+    runs-on: ${{ inputs.platform }}
     steps:
       - uses: mozilla-actions/sccache-action@v0.0.9
         # disable on msvc due to a temporary limitation, see: https://github.com/Mozilla-Actions/sccache-action/issues/189
-        if: matrix.platform != 'windows-11-arm'
+        if: inputs.platform != 'windows-11-arm'
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-latest' || matrix.platform == 'ubuntu-24.04-arm'
+        if: inputs.platform == 'ubuntu-latest' || inputs.platform == 'ubuntu-24.04-arm'
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: libwebkit2gtk-4.1-dev build-essential librsvg2-dev patchelf webkit2gtk-driver zstd xvfb curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev  libsoup-3.0-dev libgdal-dev libclang-dev # libappindicator3-dev
@@ -50,6 +54,7 @@ jobs:
         with:
           version: 10
           run_install: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
@@ -61,7 +66,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.platform == 'windows-11-arm' && 'aarch64-pc-windows-msvc' || '' }}
+          targets: ${{ inputs.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || inputs.platform == 'windows-11-arm' && 'aarch64-pc-windows-msvc' || '' }}
 
       - uses: swatinem/rust-cache@v2
 
@@ -72,27 +77,22 @@ jobs:
           workspaces: |
             src-tauri
 
-      - run: pnpm build:scripts
-
-      - id: set-version
-        run: node .dist/set-version.mjs
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - run: pnpm i --lockfile-only
       - run: cargo fetch
         working-directory: src-tauri
 
+      # Microsoft Installer (.msi) versioning doesn't
+      # support semantic pre-release syntax, so we modify.
+      # MSI are supposedly quite common in corporate computers
+      # (it's the Windows NT installer)
       - name: Set MSI Version
-        if: matrix.platform == 'windows-latest' || matrix.platform == 'windows-11-arm'
+        if: inputs.platform == 'windows-latest' || inputs.platform == 'windows-11-arm'
         id: set-msi-version
         run: |
-          # rebuild scripts to ensure package json is up to date
-          pnpm build:scripts
-          node .dist\set-msi-version.mjs
+          node .scripts\set-msi-version.cjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: tauri-apps/tauri-action@v0
+        if: inputs.package == 'app'
         id: build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -108,23 +108,7 @@ jobs:
           releaseId: ${{ inputs.release-id }}
           appVersion: "app-v__VERSION__"
           releaseDraft: false
-          includeDebug: true
-          includeRelease: true
+          includeDebug: ${{ inputs.include-debug }}
+          includeRelease: ${{ inputs.include-release }}
           includeUpdaterJson: true
-          args: ${{ matrix.args }}
-      - name: Output Summary
-        env:
-          RELEASE_ID: ${{ steps.build.outputs.releaseId }}
-          RELEASE_HTML_URL: ${{ steps.build.outputs.releaseHtmlUrl }}
-          RELEASE_UPLOAD_URL: ${{ steps.build.outputs.releaseUploadUrl }}
-          ARTIFACT_PATHS: "${{ steps.build.outputs.artifactPaths }}"
-          APP_VERSION: ${{ steps.build.outputs.appVersion }}
-
-        run: |
-          printf "\n\n\n            ✈️      ✈️      \n\n"
-          printf "\033[1mRelease Id : \033[32m${RELEASE_ID}\033[0m\n"
-          printf "\033[1mRelease Html Url : \033[32m${RELEASE_HTML_URL}\033[0m\n"
-          printf "\033[1mRelease Upload Url : \033[32m${RELEASE_UPLOAD_URL}\033[0m\n"
-          printf "\033[1mArtifact Paths : \033[32m${ARTIFACT_PATHS}\033[0m\n"
-          printf "\033[1mApp version : \033[32m${APP_VERSION}\033[0m\n"
-          printf "\n      ✈️      ✈️      ✈️      \n\n\n\n "
+          args: ${{ inputs.args }}

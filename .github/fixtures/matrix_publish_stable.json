@@ -1,26 +1,38 @@
 [
   {
     "platform": "macos-latest",
-    "args": "--target aarch64-apple-darwin"
+    "args": "--target aarch64-apple-darwin",
+    "includeRelease": true,
+    "includeDebug": true
   },
   {
     "platform": "macos-latest",
-    "args": "--target x86_64-apple-darwin"
+    "args": "--target x86_64-apple-darwin",
+    "includeRelease": true,
+    "includeDebug": false
   },
   {
     "platform": "ubuntu-latest",
-    "args": ""
+    "args": "",
+    "includeRelease": true,
+    "includeDebug": false
   },
   {
     "platform": "ubuntu-24.04-arm",
-    "args": ""
+    "args": "",
+    "includeRelease": true,
+    "includeDebug": false
   },
   {
     "platform": "windows-latest",
-    "args": ""
+    "args": "",
+    "includeRelease": true,
+    "includeDebug": false
   },
   {
     "platform": "windows-11-arm",
-    "args": "--target aarch64-pc-windows-msvc"
+    "args": "--target aarch64-pc-windows-msvc",
+    "includeRelease": true,
+    "includeDebug": false
   }
 ]
