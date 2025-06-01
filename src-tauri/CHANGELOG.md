@@ -1,5 +1,13 @@
 # Changelog
 
+## \[0.5.6]
+
+- [`7f9e832`](https://github.com/johncarmack1984/my-tauri-updater/commit/7f9e8324e668e5d3550d92c0cc31bbd5b980124d) Ensure all dependencies needed can work in all workflows.
+
+### Dependencies
+
+- Upgraded to `frontend@0.5.6`
+
 ## \[0.5.5]
 
 - [`92af617`](https://github.com/johncarmack1984/my-tauri-updater/commit/92af61722146ae3fa67cb835b91f3572f9527f96) Fix issue where stable release binary name would have pre-release syntax in Windows NT/MSI installers
