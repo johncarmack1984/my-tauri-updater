@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.5.7]
+
+- [`c038bf4`](https://github.com/johncarmack1984/my-tauri-updater/commit/c038bf43dd2c26682bfc7699f616cf2065f1635b) Generalize post-publish job
+
 ## \[0.5.6]
 
 - [`1216cc7`](https://github.com/johncarmack1984/my-tauri-updater/commit/1216cc706ec27c1f1bd03da437cbef4cef29501b) Ensure all dependencies needed can work in all workflows.
