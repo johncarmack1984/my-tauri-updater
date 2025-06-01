@@ -10,24 +10,33 @@ jobs:
     uses: ./.github/workflows/covector-version-or-publish.yml
     secrets: inherit
 
-  publish-to-auto-release:
-    needs: version-or-publish
-    if: needs.version-or-publish.outputs.release-id
-    uses: ./.github/workflows/publish-to-auto-release.yml
-    secrets: inherit
-    with:
-      release-id: ${{ needs.version-or-publish.outputs.release-id }}
-      matrix: ${{ needs.version-or-publish.outputs.matrix }}
-
-  post-publish:
+  build-to-release:
     needs: version-or-publish
     if: needs.version-or-publish.outputs.command-ran == 'publish'
-    name: Post-Publish ${{ matrix.package }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    uses: ./.github/workflows/build-to-release.yml
+    secrets: inherit
     strategy:
       fail-fast: false
-      matrix: ${{ toJson(join(needs.version-or-publish.outputs.packages-published)) }}
-    steps:
-      - run: echo "Running job for package ${{ matrix.package }}""
+      matrix: ${{ fromJson(needs.version-or-publish.outputs.build-matrix) }}
+    with:
+      package: ${{ matrix.package }}
+      release-id: ${{ needs.version-or-publish.outputs.release-id }}
+      platform: ${{ matrix.platform }}
+      args: ${{ matrix.args }}
+      include-debug: ${{ matrix.include-debug }}
+      include-release: ${{ matrix.include-release }}
+
+  # push-to-s3:
+  #   needs: [version-or-publish, build-to-release]
+  #   if: needs.version-or-publish.outputs.command-ran == 'publish'
+  #   uses: ./.github/workflows/push-to-s3.yml
+  #   name: push ${{ matrix.package }}-v${{ matrix.version }} to S3
+  #   secrets: inherit
+  #   strategy:
+  #     fail-fast: false
+  #     matrix: ${{ fromJson(needs.version-or-publish.outputs.packages-published) }}
+  #   with:
+  #     bucket-name: my-tauri-updater
+  #     package-name: ${{ matrix.package }}
+  #     release-id: ${{ needs.version-or-publish.outputs.release-id }}
+  #     version: ${{ matrix.version }}
