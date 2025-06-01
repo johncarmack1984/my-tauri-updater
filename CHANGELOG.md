@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.5.0-rc.5]
+
+- [`baecb39`](https://github.com/johncarmack1984/my-tauri-updater/commit/baecb39fea0f1e3e1690f7f7987fc3886fe8d03c) Apply new script to workflow runs.
+
 ## \[0.5.0-rc.4]
 
 - [`f7a72cd`](https://github.com/johncarmack1984/my-tauri-updater/commit/f7a72cdbc7a9187e2cdccda56e374780e114cd6c) Get channel from node script
