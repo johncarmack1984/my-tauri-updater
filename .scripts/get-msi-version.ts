@@ -37,18 +37,23 @@ const getReleaseChannel = (preRelease?: string): [number, number] => {
 
 const getMsiVersion = (version: string): string => {
   const [mainVersion, preRelease] = version.split("-");
-  const msiIteration = getReleaseChannel(preRelease).join("");
+  const [preC, preV] = getReleaseChannel(preRelease);
   const [major, minor, patch] = mainVersion
     .split(".")
     .map((n) => Number.parseInt(n, 10));
   const releaseNumber = getReleaseNumber();
 
-  const msiVersion = Math.min(
-    major * 10000 + minor * 100 + patch * 10 + (releaseNumber % 10),
-    65535
+  return String(
+    Math.min(
+      major * 10000 +
+        minor * 1000 +
+        patch * 100 +
+        preC * 10 +
+        preV +
+        (releaseNumber % 10),
+      65535
+    )
   );
-
-  return `${String(msiVersion)}-${String(msiIteration)}`;
 };
 
 const version = getMsiVersion(currentVersion);
