@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.5.0-rc.6]
+
+- [`838146b`](https://github.com/johncarmack1984/my-tauri-updater/commit/838146b637f34f27b96692abd9535275d7bccc56) Fix workflow
+
 ## \[0.5.0-rc.5]
 
 - [`baecb39`](https://github.com/johncarmack1984/my-tauri-updater/commit/baecb39fea0f1e3e1690f7f7987fc3886fe8d03c) Apply new script to workflow runs.
