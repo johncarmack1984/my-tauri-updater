@@ -48,7 +48,7 @@
         "pipe": true
       },
       "prePublish": {
-        "command": "pnpm i && pnpm build:scripts && node .dist/set-version.mjs && pnpm i",
+        "command": "echo 'pre publish app'",
         "dryRunCommand": "echo 'pre publish app'",
         "pipe": true
       },
@@ -89,11 +89,14 @@
         "dryRunCommand": "",
         "pipe": true
       },
-      "postPublish": {
-        "command": "cargo fetch",
-        "dryRunCommand": "echo 'cargo fetch'",
-        "pipe": true
-      },
+      "postPublish": [
+        {
+          "command": [
+            "gh release download ${ pkg.pkg }-v${ pkgFile.version } --dir release",
+            "aws s3 sync release/ s3://my-tauri-updater/${ pkg.pkg }/${ pkgFile.version }/"
+          ]
+        }
+      ],
       "dependencies": ["frontend"]
     }
   }

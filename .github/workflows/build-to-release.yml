@@ -1,0 +1,116 @@
+name: build to release
+on:
+  workflow_call:
+    inputs:
+      package:
+        required: true
+        type: string
+      release-id:
+        required: true
+        type: string
+      platform:
+        required: true
+        type: string
+      args:
+        required: true
+        type: string
+      include-debug:
+        required: true
+        type: boolean
+      include-release:
+        required: true
+        type: boolean
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  publish-tauri:
+    name: "${{ inputs.platform }} ${{ inputs.args }}"
+    permissions:
+      contents: write
+
+    env:
+      SCCACHE_GHA_ENABLED: ${{ inputs.platform != 'windows-11-arm' && true ||  false }}
+      RUSTC_WRAPPER: ${{ inputs.platform != 'windows-11-arm' && 'sccache' ||  null }}
+
+    runs-on: ${{ inputs.platform }}
+    steps:
+      - uses: mozilla-actions/sccache-action@v0.0.9
+        # disable on msvc due to a temporary limitation, see: https://github.com/Mozilla-Actions/sccache-action/issues/189
+        if: inputs.platform != 'windows-11-arm'
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: install dependencies (ubuntu only)
+        if: inputs.platform == 'ubuntu-latest' || inputs.platform == 'ubuntu-24.04-arm'
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libwebkit2gtk-4.1-dev build-essential librsvg2-dev patchelf webkit2gtk-driver zstd xvfb curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev  libsoup-3.0-dev libgdal-dev libclang-dev # libappindicator3-dev
+          version: 1.0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+
+      - run: pnpm i
+
+      - id: install-rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: ${{ inputs.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || inputs.platform == 'windows-11-arm' && 'aarch64-pc-windows-msvc' || '' }}
+
+      - uses: swatinem/rust-cache@v2
+
+        with:
+          key: ${{ steps.install-rust.outputs.cachekey }}
+          cache-all-crates: true
+          cache-on-failure: true
+          workspaces: |
+            src-tauri
+
+      - run: cargo fetch
+        working-directory: src-tauri
+
+      # Microsoft Installer (.msi) versioning doesn't
+      # support semantic pre-release syntax, so we modify.
+      # MSI are supposedly quite common in corporate computers
+      # (it's the Windows NT installer)
+      - name: Set MSI Version
+        if: inputs.platform == 'windows-latest' || inputs.platform == 'windows-11-arm'
+        id: set-msi-version
+        run: |
+          node .scripts\set-msi-version.cjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: tauri-apps/tauri-action@v0
+        if: inputs.package == 'app'
+        id: build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          releaseId: ${{ inputs.release-id }}
+          appVersion: "app-v__VERSION__"
+          releaseDraft: false
+          includeDebug: ${{ inputs.include-debug }}
+          includeRelease: ${{ inputs.include-release }}
+          includeUpdaterJson: true
+          args: ${{ inputs.args }}

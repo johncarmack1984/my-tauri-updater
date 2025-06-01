@@ -1,4 +1,4 @@
-name: push to s3
+name: push to aws
 on:
   workflow_call:
     inputs:
@@ -11,7 +11,7 @@ on:
       release-id:
         required: true
         type: string
-      app-version:
+      version:
         required: true
         type: string
 
@@ -35,15 +35,15 @@ jobs:
 
       - name: Download release assets
         run: |
-          echo "gh release download ${{ inputs.package-name }}-v${{ inputs.app-version }} -D release"
-          gh release download ${{ inputs.package-name }}-v${{ inputs.app-version }} -D release
+          echo "gh release download ${{ inputs.package-name }}-v${{ inputs.version }} -D release"
+          gh release download ${{ inputs.package-name }}-v${{ inputs.version }} -D release
         env:
           GH_TOKEN: ${{ github.token }}
 
       - name: Update URLs in latest.json
         run: |
-          echo "sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ inputs.package-name }}-v${{ inputs.app-version }}/${{ inputs.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ inputs.package-name }}\/${{ inputs.app-version }}/g' release/latest.json"
-          sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ inputs.package-name }}-v${{ inputs.app-version }}/${{ inputs.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ inputs.package-name }}\/${{ inputs.app-version }}/g' release/latest.json
+          echo "sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ inputs.package-name }}-v${{ inputs.version }}/${{ inputs.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ inputs.package-name }}\/${{ inputs.version }}/g' release/latest.json"
+          sed -i 's/github.com\/${{ env.repo-owner }}\/${{ env.repo-name }}\/releases\/download\/${{ inputs.package-name }}-v${{ inputs.version }}/${{ inputs.bucket-name }}.s3.${{ vars.AWS_REGION }}.amazonaws.com\/${{ inputs.package-name }}\/${{ inputs.version }}/g' release/latest.json
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v4
@@ -57,20 +57,20 @@ jobs:
         with:
           bucket: my-tauri-updater
           dir: release
-          prefix: "${{ inputs.package-name }}/${{ inputs.app-version }}/"
+          prefix: "${{ inputs.package-name }}/${{ inputs.version }}/"
 
       - name: Update latest.json in S3
         uses: osiegmar/s3-publisher-action@v1
-        if: ${{ inputs.release-id }}
         with:
           bucket: my-tauri-updater
           dir: release
           includes: "latest.json"
           prefix: "${{ inputs.package-name }}/"
 
-      - name: Publish Release
-        run: |
-          echo "gh release edit ${{ inputs.package-name }}-v${{ inputs.app-version }} --draft=false"
-          gh release edit ${{ inputs.package-name }}-v${{ inputs.app-version }} --draft=false
-        env:
-          GH_TOKEN: ${{ github.token }}
+      # - name: Publish Release
+      #   run: |
+      #     echo "gh release edit ${{ inputs.package-name }}-v${{ inputs.version }} --draft=false"
+      #     gh release edit ${{ inputs.package-name }}-v${{ inputs.version }} --draft=false
+      #   env:
+      #     GH_TOKEN: ${{ github.token }}
+      - name: Covector Publish
