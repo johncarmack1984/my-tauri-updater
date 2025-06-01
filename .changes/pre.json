@@ -1,6 +1,7 @@
 {
   "tag": "rc",
   "changes": [
+    ".changes/apply-new-script.md",
     ".changes/further-reduce-workflows-needed.md",
     ".changes/get-channel-from-node-scripts.md",
     ".changes/handle-windows-prerelease-versioning.md",
