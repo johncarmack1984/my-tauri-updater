@@ -11,6 +11,7 @@
     ".changes/overhaul-ci.md",
     ".changes/set-retention-days.md",
     ".changes/simplify-build-setup.md",
-    ".changes/simplify-version-set-scripts.md"
+    ".changes/simplify-version-set-scripts.md",
+    ".changes/update-config.md"
   ]
 }
