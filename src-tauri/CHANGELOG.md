@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.5.7]
+
+- [`6de2904`](https://github.com/johncarmack1984/my-tauri-updater/commit/6de2904c4929428cf47add25691d6ad1627a08c5) Test getting values from the covector action output
+
 ## \[0.5.6]
 
 - [`1216cc7`](https://github.com/johncarmack1984/my-tauri-updater/commit/1216cc706ec27c1f1bd03da437cbef4cef29501b) Ensure all dependencies needed can work in all workflows.
