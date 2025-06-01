@@ -9,6 +9,12 @@ on:
       matrix:
         description: "Matrix for publish jobs"
         value: ${{ jobs.version-or-publish.outputs.matrix }}
+      command-ran:
+        description: "The command that was run by covector"
+        value: ${{ jobs.version-or-publish.outputs.command-ran }}
+      packages-published:
+        description: "List of packages that were published"
+        value: ${{ jobs.version-or-publish.outputs.packages-published }}
 
 env:
   SCCACHE_GHA_ENABLED: true
@@ -29,9 +35,9 @@ jobs:
     outputs:
       release-id: ${{ steps.covector.outputs.releaseId }}
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-      packages-published: ${{ steps.covector.outputs.packagesPublished }}
+      packages-published: ${{ steps.get-packages-published.outputs.result }}
       change: ${{ steps.covector.outputs.change }}
-      commandRan: ${{ steps.covector.outputs.commandRan }}
+      command-ran: ${{ steps.covector.outputs.commandRan }}
       successfulPublish: ${{ steps.covector.outputs.successfulPublish }}
 
     steps:
@@ -87,11 +93,30 @@ jobs:
           createRelease: true
           recognizeContributors: true
       - run: echo "commandRan=${{ steps.covector.outputs.commandRan }}"
-      - run: echo "packagesPublished=${{ steps.covector.outputs.packagesPublished }}"
-      - name: echo "change:<see output>"
-        run: |
-          echo "change:"
-          echo ${{ toJson(steps.covector.outputs.change) }}
+
+      - id: get-packages-published
+        uses: actions/github-script@v7
+        env:
+          PACKAGES: ${{ steps.covector.outputs.packagesPublished }}
+        with:
+          script: |
+            const pkgStr = process.env.PACKAGES ?? "";
+            const packages = pkgStr.length ? pkgStr.split(",") : [];
+            if (packages.length === 0) {
+              console.log("No packages published.");
+              return packages;
+            }
+            console.log("Packages published:", packages);
+            return packages.map(e=>({package:e}))
+
+      - uses: actions/github-script@v7
+        id: print-change
+        if: steps.covector.outputs.change != ''
+        env:
+          CHANGE: ${{ steps.covector.outputs.change }}
+        with:
+          script: |
+            console.log("change: ",JSON.stringify(process.env.CHANGE,null,2))
       - run: echo "releaseId=${{ steps.covector.outputs.releaseId }}"
       - run: echo "successfulPublish=${{ steps.covector.outputs.successfulPublish }}"
       - run: echo "releaseUrl=${{ steps.covector.outputs.releaseUrl }}"

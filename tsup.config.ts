@@ -1,7 +1,7 @@
 import { defineConfig, Options } from "tsup";
 
 export default defineConfig({
-  entry: [".scripts/print-*.ts", ".scripts/set-*.ts"],
+  entry: [".scripts/print-*.ts", ".scripts/set-*.ts", ".scripts/parse-*.ts"],
   format: ["esm"],
   outExtension: () => ({ js: ".mjs" }),
   platform: "node",
