@@ -39,6 +39,7 @@
   "packages": {
     "frontend": {
       "manager": "javascript",
+      "getPublishedVersion": "git tag -l --sort=v:refname \"app-v\" | sed s/v//",
       "path": ".",
       "releaseTag": false,
       "build": {

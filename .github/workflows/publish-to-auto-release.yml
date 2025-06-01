@@ -105,7 +105,7 @@ jobs:
         with:
           releaseId: ${{ inputs.release-id }}
           appVersion: "app-v__VERSION__"
-          releaseDraft: true
+          releaseDraft: false
           includeDebug: true
           includeRelease: true
           includeUpdaterJson: true
