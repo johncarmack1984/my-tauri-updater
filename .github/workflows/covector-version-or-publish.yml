@@ -121,7 +121,7 @@ jobs:
 
       - id: get-release-type
         run: |
-          RELEASE_TYPE=$(npx covector status | grep 'app:' | sed 's/app://' | xargs | cut -d ' ' -f1)
+          RELEASE_TYPE=$(node .dist/print-release-type.mjs)
           echo "release-type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
 
       - id: set-matrix

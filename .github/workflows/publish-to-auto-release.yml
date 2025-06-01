@@ -92,7 +92,8 @@ jobs:
       - uses: swatinem/rust-cache@v2
       - run: pnpm build:scripts
       - id: set-version
-        run: node .dist/set-version.mjs)
+        if: matrix.platform != 'windows-latest' || matrix.platform != 'windows-11-arm'
+        run: node .dist/set-version.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set MSI Version
