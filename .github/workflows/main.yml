@@ -28,6 +28,6 @@ jobs:
       contents: write
     strategy:
       fail-fast: false
-      matrix: ${{ toJson(join(needs.version-or-publish.outputs.packages-published)) }}
+      matrix: ${{ fromJson(needs.version-or-publish.outputs.packages-published) }}
     steps:
-      - run: echo "Running job for package ${{ matrix.package }}""
+      - run: echo "Running job for package ${{ matrix.package }}"
