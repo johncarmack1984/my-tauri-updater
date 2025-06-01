@@ -3,11 +3,6 @@ on:
   pull_request:
     branches:
       - main
-  workflow_call:
-    outputs:
-      covector-status:
-        description: "The status of the covector command"
-        value: ${{ jobs.covector.outputs.covector-status }}
 
 jobs:
   covector:

@@ -45,7 +45,6 @@ jobs:
       RUSTC_WRAPPER: ${{ matrix.platform != 'windows-11-arm' && 'sccache' ||  null }}
       CARGO_TERM_COLOR: always
       CARGO_INCREMENTAL: 0
-      release-channel: "stable"
 
     outputs:
       release-id: ${{ steps.build.outputs.releaseId }}
@@ -91,16 +90,25 @@ jobs:
 
       - run: pnpm install
       - uses: swatinem/rust-cache@v2
-      - run: cargo fetch
-        working-directory: src-tauri
+      - run: pnpm build:scripts
+      - id: set-version
+        run: node .dist/set-version.mjs)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set MSI Version
         if: matrix.platform == 'windows-latest' || matrix.platform == 'windows-11-arm'
         id: set-msi-version
         run: |
-          pnpm build:scripts
+          # rebuild scripts to ensure package json is upd to date
+          pnpm run build:scripts
           node .dist\set-msi-version.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: cargo fetch
+        working-directory: src-tauri
+
+      - run: pnpm i
+      - run: cargo fetch
 
       - uses: tauri-apps/tauri-action@v0
         id: build
@@ -118,7 +126,7 @@ jobs:
           MSI_VERSION: ${{ inputs.msi-version }}
         with:
           releaseId: ${{ inputs.release-id }}
-          appVersion: ${{ matrix.platform == 'windows-latest' && env.MSI_VERSION || matrix.platform == 'windows-11-arm' && env.MSI_VERSION || env.APP_VERSION }}
+          appVersion: "__VERSION__"
           releaseDraft: true
           includeDebug: true
           includeRelease: true
