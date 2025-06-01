@@ -68,6 +68,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-
+      - uses: swatinem/rust-cache@v2
       - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
@@ -89,7 +90,6 @@ jobs:
           version: 1.0
 
       - run: pnpm install
-      - uses: swatinem/rust-cache@v2
       - run: pnpm build:scripts
       - id: set-version
         if: matrix.platform != 'windows-latest' || matrix.platform != 'windows-11-arm'
@@ -105,11 +105,10 @@ jobs:
           node .dist\set-msi-version.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: cargo fetch
-        working-directory: src-tauri
 
       - run: pnpm i
       - run: cargo fetch
+        working-directory: src-tauri
 
       - uses: tauri-apps/tauri-action@v0
         id: build
