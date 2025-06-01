@@ -32,10 +32,10 @@
     }
   },
   "packages": {
-    "app": {
+    "frontend": {
       "manager": "javascript",
       "path": ".",
-      "releaseTag": "v${ pkgFile.version }",
+      "releaseTag": false,
       "build": {
         "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
         "dryRunCommand": "echo 'gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release'",
@@ -55,12 +55,11 @@
         "command": "echo 'pre publish app'",
         "dryRunCommand": "echo 'pre publish app'",
         "pipe": true
-      },
-      "dependencies": ["tauri"]
+      }
     },
-    "tauri": {
+    "app": {
       "path": "./src-tauri",
-      "releaseTag": false,
+      "releaseTag": "${ pkg.pkg }-v${ pkgFile.version }",
       "manager": "rust",
       "build": {
         "command": "gh release download ${ pkg.pkg }-v${ pkgFile.version } -D release",
@@ -80,7 +79,8 @@
         "command": "echo 'post publish tauri'",
         "dryRunCommand": "",
         "pipe": true
-      }
+      },
+      "dependencies": ["frontend"]
     }
   }
 }

@@ -59,6 +59,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # required for use of git history
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.x.x
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm build:scripts
+      - id: get-release-type
+        run: |
+          RELEASE_TYPE=$(node .dist/print-release-type.mjs)
+          echo "release-type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v4
@@ -88,20 +109,6 @@ jobs:
           branch: "release"
           body: ${{ steps.covector.outputs.change }}
 
-      - name: Cache pnpm modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10.x.x
-      - run: pnpm i --frozen-lockfile
       - run: pnpm build:scripts
 
       - id: get-version
@@ -118,11 +125,6 @@ jobs:
         run: |
           RELEASE_CHANNEL=$(node .dist/print-release-channel.mjs)
           echo "release-channel=$RELEASE_CHANNEL" >> $GITHUB_OUTPUT
-
-      - id: get-release-type
-        run: |
-          RELEASE_TYPE=$(node .dist/print-release-type.mjs)
-          echo "release-type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
 
       - id: set-matrix
         run: |
