@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const main = (newVersion: string, msi = false) => {
+const main = (newVersion, msi = false) => {
   // Validate version format (x.x.x or x.x.x-channel.n)
   if (
     !msi &&
@@ -24,12 +24,12 @@ const main = (newVersion: string, msi = false) => {
   const files = [
     {
       path: "package.json",
-      update: (content: string) =>
+      update: (content) =>
         content.replace(/"version":\s*"[^"]+"/, `"version": "${newVersion}"`),
     },
     {
       path: "src-tauri/Cargo.toml",
-      update: (content: string) =>
+      update: (content) =>
         content.replace(/version\s*=\s*"[^"]+"/, `version = "${newVersion}"`),
     },
   ];
@@ -49,13 +49,11 @@ const main = (newVersion: string, msi = false) => {
   }
 };
 
-if (import.meta.main) {
-  const newVersion = process.argv[2];
-  if (!newVersion) {
-    console.error("Usage: ts-node .scripts/set-version.ts <new-version>");
-    process.exit(1);
-  }
-  main(newVersion);
+const newVersion = process.argv[2];
+if (!newVersion) {
+  console.error("Usage: node .scripts/set-version.cjs <new-version>");
+  process.exit(1);
 }
+main(newVersion);
 
 export default main;
