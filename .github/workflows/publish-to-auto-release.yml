@@ -19,7 +19,7 @@ jobs:
       matrix: ${{fromJson(inputs.matrix)}}
 
     env:
-      SCCACHE_GHA_ENABLED: ${{ matrix.platform != 'windows-11-arm' && 'true' ||  'false' }}
+      SCCACHE_GHA_ENABLED: ${{ matrix.platform != 'windows-11-arm' && true ||  false }}
       RUSTC_WRAPPER: ${{ matrix.platform != 'windows-11-arm' && 'sccache' ||  null }}
       CARGO_TERM_COLOR: always
       CARGO_INCREMENTAL: 0
@@ -36,7 +36,6 @@ jobs:
       - uses: mozilla-actions/sccache-action@v0.0.9
         # disable on msvc due to a temporary limitation, see: https://github.com/Mozilla-Actions/sccache-action/issues/189
         if: matrix.platform != 'windows-11-arm'
-        continue-on-error: true
       - uses: actions/checkout@v4
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-latest' || matrix.platform == 'ubuntu-24.04-arm'
@@ -48,14 +47,15 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 10
+          run_install: false
       - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
           cache: "pnpm"
-      - run: pnpm i --frozen-lockfile
 
-      - name: install Rust stable
-        id: install-rust
+      - run: pnpm i
+
+      - id: install-rust
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
@@ -66,18 +66,18 @@ jobs:
         with:
           key: ${{ steps.install-rust.outputs.cachekey }}
           cache-all-crates: true
-          cache-directories: |
-            ./src-tauri/target
           cache-on-failure: true
+          workspaces: |
+            src-tauri
 
-      - run: pnpm install
       - run: pnpm build:scripts
+
       - id: set-version
         run: node .dist/set-version.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: pnpm i
+      - run: pnpm i --lockfile-only
       - run: cargo fetch
         working-directory: src-tauri
 
