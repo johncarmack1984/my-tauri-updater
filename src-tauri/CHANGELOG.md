@@ -1,5 +1,13 @@
 # Changelog
 
+## \[0.5.0]
+
+- [`658a232`](https://github.com/johncarmack1984/my-tauri-updater/commit/658a232f0d9b6948331206a185cdbf9fd4f16820) Take updater out of pre-release and into stable.
+
+### Dependencies
+
+- Upgraded to `frontend@0.5.0`
+
 ## \[0.5.0-rc.7]
 
 - [`069ed4f`](https://github.com/johncarmack1984/my-tauri-updater/commit/069ed4f8166c909114c58d234225a3839accbb74) Link version number to Tauri app to create consistent artifact behavior.
