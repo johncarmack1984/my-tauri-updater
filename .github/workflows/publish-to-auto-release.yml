@@ -37,6 +37,8 @@ jobs:
         # disable on msvc due to a temporary limitation, see: https://github.com/Mozilla-Actions/sccache-action/issues/189
         if: matrix.platform != 'windows-11-arm'
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-latest' || matrix.platform == 'ubuntu-24.04-arm'
         uses: awalsh128/cache-apt-pkgs-action@latest
