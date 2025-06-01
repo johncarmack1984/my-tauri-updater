@@ -9,6 +9,12 @@ on:
       matrix:
         description: "Matrix for publish jobs"
         value: ${{ jobs.version-or-publish.outputs.matrix }}
+      command-ran:
+        description: "The command that was run by covector"
+        value: ${{ jobs.version-or-publish.outputs.command-ran }}
+      packages-published:
+        description: "List of packages that were published"
+        value: ${{ jobs.version-or-publish.outputs.packages-published }}
 
 env:
   SCCACHE_GHA_ENABLED: true
@@ -29,9 +35,9 @@ jobs:
     outputs:
       release-id: ${{ steps.covector.outputs.releaseId }}
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-      packages-published: ${{ steps.covector.outputs.packagesPublished }}
+      packages-published: ${{ steps.package-matrix.outputs.packages-published }}
       change: ${{ steps.covector.outputs.change }}
-      commandRan: ${{ steps.covector.outputs.commandRan }}
+      command-ran: ${{ steps.covector.outputs.commandRan }}
       successfulPublish: ${{ steps.covector.outputs.successfulPublish }}
 
     steps:
@@ -87,7 +93,8 @@ jobs:
           createRelease: true
           recognizeContributors: true
       - run: echo "commandRan=${{ steps.covector.outputs.commandRan }}"
-      - run: echo "packagesPublished=${{ steps.covector.outputs.packagesPublished }}"
+      - id: package-matrix
+        run: echo "packages-published=["${{ join(steps.covector.outputs.packagesPublished, '","') }}"]" >> $GITHUB_OUTPUT
       - name: echo "change:<see output>"
         run: |
           echo "change:"
