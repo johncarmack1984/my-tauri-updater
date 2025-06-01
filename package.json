@@ -28,6 +28,7 @@
     "zod": "^3.25.39"
   },
   "devDependencies": {
+    "@actions/github-script": "github:actions/github-script",
     "@tauri-apps/cli": "^2.5.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@types/bun": "^1.2.15",
