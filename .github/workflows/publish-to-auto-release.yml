@@ -68,7 +68,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-
-      - uses: swatinem/rust-cache@v2
+
       - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
@@ -82,6 +82,8 @@ jobs:
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.platform == 'windows-11-arm' && 'aarch64-pc-windows-msvc' || '' }}
 
+      - uses: swatinem/rust-cache@v2
+
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-latest' || matrix.platform == 'ubuntu-24.04-arm'
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -92,10 +94,14 @@ jobs:
       - run: pnpm install
       - run: pnpm build:scripts
       - id: set-version
-        if: matrix.platform != 'windows-latest' || matrix.platform != 'windows-11-arm'
         run: node .dist/set-version.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: pnpm i
+      - run: cargo fetch
+        working-directory: src-tauri
+
       - name: Set MSI Version
         if: matrix.platform == 'windows-latest' || matrix.platform == 'windows-11-arm'
         id: set-msi-version
@@ -105,11 +111,6 @@ jobs:
           node .dist\set-msi-version.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - run: pnpm i
-      - run: cargo fetch
-        working-directory: src-tauri
-
       - uses: tauri-apps/tauri-action@v0
         id: build
         env:
@@ -126,7 +127,7 @@ jobs:
           MSI_VERSION: ${{ inputs.msi-version }}
         with:
           releaseId: ${{ inputs.release-id }}
-          appVersion: "__VERSION__"
+          appVersion: "app-v__VERSION__"
           releaseDraft: true
           includeDebug: true
           includeRelease: true
