@@ -19,13 +19,15 @@ jobs:
       release-id: ${{ needs.version-or-publish.outputs.release-id }}
       matrix: ${{ needs.version-or-publish.outputs.matrix }}
 
-  push-to-s3:
-    needs: [version-or-publish, publish-to-auto-release]
-    uses: ./.github/workflows/push-to-s3.yml
-    secrets: inherit
-
-    with:
-      release-id: ${{ needs.version-or-publish.outputs.release-id }}
-      app-version: ${{ needs.version-or-publish.outputs.app-version }}
-      package-name: "app"
-      bucket-name: "my-tauri-updater"
+  job-matrix:
+    name: Post-Publish ${{ matrix.package }}
+    needs: version-or-publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.version-or-publish.outputs.packages-published) }}
+    steps:
+      - run: echo "Running job for package ${{ matrix.package }}""

@@ -9,6 +9,9 @@ on:
       matrix:
         description: "Matrix for publish jobs"
         value: ${{ jobs.version-or-publish.outputs.matrix }}
+      packages-published:
+        description: "List of packages that were published"
+        value: ${{ jobs.version-or-publish.outputs.packages-published }}
 
 env:
   SCCACHE_GHA_ENABLED: true
