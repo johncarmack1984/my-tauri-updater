@@ -43,7 +43,7 @@ jobs:
       - name: install dependencies (ubuntu only)
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: libwebkit2gtk-4.1-dev build-essential librsvg2-dev patchelf webkit2gtk-driver zstd xvfb curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev # libappindicator3-dev
+          packages: libwebkit2gtk-4.1-dev build-essential librsvg2-dev patchelf webkit2gtk-driver zstd xvfb curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev  libsoup-3.0-dev libgdal-dev libclang-dev # libappindicator3-dev
           version: 1.0
 
       - uses: pnpm/action-setup@v4
@@ -86,11 +86,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           command: "version-or-publish"
           createRelease: true
-          draftRelease: true
           recognizeContributors: true
 
       - run: pnpm i --lockfile-only
-      - run: cargo fetch
+      - run: cargo tree --depth 0
         working-directory: src-tauri
 
       - name: Create Pull Request With Versions Bumped
