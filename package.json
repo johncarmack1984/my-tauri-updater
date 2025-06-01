@@ -2,7 +2,7 @@
   "name": "my-tauri-updater",
   "author": "John Carmack <me@johncarmack.com> (https://www.johncarmack.com/)",
   "private": true,
-  "version": "0.5.1",
+  "version": "0.5.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
