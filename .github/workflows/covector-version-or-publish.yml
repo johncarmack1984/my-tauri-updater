@@ -56,7 +56,7 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
 
-      - run: pnpm install
+      - run: pnpm i --frozen-lockfile
 
       - id: install-rust
         uses: dtolnay/rust-toolchain@stable
@@ -145,7 +145,7 @@ jobs:
         env:
           matrix: ${{ steps.set-matrix.outputs.matrix }}
 
-      - name: "${{ steps.get-version.outputs.version }}"
+      - name: "v${{ steps.get-version.outputs.version }}"
         env:
           CURRENT_VERSION: ${{ steps.get-version.outputs.version }}
           MSI_VERSION: ${{ steps.get-msi-version.outputs.msi-version }}
