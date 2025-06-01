@@ -108,8 +108,8 @@ jobs:
           releaseId: ${{ inputs.release-id }}
           appVersion: "app-v__VERSION__"
           releaseDraft: false
-          includeDebug: true
-          includeRelease: true
+          includeDebug: ${{ matrix.includeDebug }}
+          includeRelease: ${{ matrix.includeRelease }}
           includeUpdaterJson: true
           args: ${{ matrix.args }}
       - name: Output Summary
