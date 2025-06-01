@@ -70,7 +70,7 @@ jobs:
 
       - name: Publish Release
         run: |
-          echo "gh release edit ${{ inputs.package-name }}-v${{ inputs.app-version }} --draf=false"
-          gh release edit ${{ inputs.package-name }}-v${{ inputs.app-version }} --draf=false
+          echo "gh release edit ${{ inputs.package-name }}-v${{ inputs.app-version }} --draft=false"
+          gh release edit ${{ inputs.package-name }}-v${{ inputs.app-version }} --draft=false
         env:
           GH_TOKEN: ${{ github.token }}
