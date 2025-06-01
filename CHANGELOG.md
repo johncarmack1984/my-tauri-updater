@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.5.0]
+
+- [`658a232`](https://github.com/johncarmack1984/my-tauri-updater/commit/658a232f0d9b6948331206a185cdbf9fd4f16820) Take updater out of pre-release and into stable.
+
 ## \[0.5.0-rc.6]
 
 - [`838146b`](https://github.com/johncarmack1984/my-tauri-updater/commit/838146b637f34f27b96692abd9535275d7bccc56) Fix workflow
