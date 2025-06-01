@@ -67,3 +67,10 @@ jobs:
           dir: release
           includes: "latest.json"
           prefix: "${{ inputs.package-name }}/"
+
+      - name: Publish Release
+        run: |
+          echo "gh release edit ${{ inputs.package-name }}-v${{ inputs.app-version }} --draf=false"
+          gh release edit ${{ inputs.package-name }}-v${{ inputs.app-version }} --draf=false
+        env:
+          GH_TOKEN: ${{ github.token }}
