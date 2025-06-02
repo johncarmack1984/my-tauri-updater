@@ -67,10 +67,9 @@ jobs:
           includes: "latest.json"
           prefix: "${{ inputs.package-name }}/"
 
-      # - name: Publish Release
-      #   run: |
-      #     echo "gh release edit ${{ inputs.package-name }}-v${{ inputs.version }} --draft=false"
-      #     gh release edit ${{ inputs.package-name }}-v${{ inputs.version }} --draft=false
-      #   env:
-      #     GH_TOKEN: ${{ github.token }}
-      - name: Covector Publish
+      - name: Publish Release
+        run: |
+          echo "gh release edit ${{ inputs.package-name }}-v${{ inputs.version }} --draft=false"
+          gh release edit ${{ inputs.package-name }}-v${{ inputs.version }} --draft=false
+        env:
+          GH_TOKEN: ${{ github.token }}
