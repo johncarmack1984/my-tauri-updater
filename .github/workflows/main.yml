@@ -14,7 +14,7 @@ jobs:
     needs: version-or-publish
     if: needs.version-or-publish.outputs.command-ran == 'publish'
     uses: ./.github/workflows/build-to-release.yml
-    name: "${{ matrix.package }}-${{ matrix.platform }}-v${{ matrix.version }}"
+    name: "build ${{ matrix.package }}-v${{ matrix.version }}"
     secrets: inherit
     strategy:
       fail-fast: false

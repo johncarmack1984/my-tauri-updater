@@ -8,8 +8,7 @@
       "build": { "command": "pnpm build", "pipe": true },
       "test": [
         { "command": "pnpm build", "pipe": true },
-        { "command": "pnpm test", "dryRunCommand": false },
-        { "command": "echo boop", "dryRunCommand": "echo deboop" }
+        { "command": "pnpm test", "dryRunCommand": false }
       ],
       "releaseTag": false
     },
@@ -39,7 +38,7 @@
   "packages": {
     "frontend": {
       "manager": "javascript",
-      "getPublishedVersion": "git tag -l --sort=-v:refname 'app-*' | xargs | cut -d ' ' -f1 | xargs",
+      "getPublishedVersion": "git tag -l --sort=-v:refname 'app-v${ pkgFile.version }' | xargs | cut -d ' ' -f1 | xargs",
       "path": ".",
       "releaseTag": false,
       "build": {
@@ -56,20 +55,7 @@
         "command": "echo 'publish app'",
         "dryRunCommand": "echo 'publish app'",
         "pipe": true
-      },
-      "postPublish": [
-        {
-          "command": "pnpm i --lockfile-only",
-          "dryRunCommand": "echo 'pnpm i --lockfile-only'",
-          "pipe": true
-        },
-        {
-          "command": [
-            "gh release download ${ pkg.pkg }-v${ pkgFile.version } --dir release",
-            "aws s3 sync release/ s3://my-tauri-updater/${ pkg.pkg }/${ pkgFile.version }/"
-          ]
-        }
-      ]
+      }
     },
     "app": {
       "path": "./src-tauri",
@@ -89,14 +75,6 @@
         "dryRunCommand": "",
         "pipe": true
       },
-      "postPublish": [
-        {
-          "command": [
-            "gh release download ${ pkg.pkg }-v${ pkgFile.version } --dir release",
-            "aws s3 sync release/ s3://my-tauri-updater/${ pkg.pkg }/${ pkgFile.version }/"
-          ]
-        }
-      ],
       "dependencies": ["frontend"]
     }
   }
