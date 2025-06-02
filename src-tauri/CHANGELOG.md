@@ -1,5 +1,13 @@
 # Changelog
 
+## \[0.7.1]
+
+- [`fc6154b`](https://github.com/johncarmack1984/my-tauri-updater/commit/fc6154b7dab11481583b5c3e0fecf2267438cadc) Better release calc logic.
+
+### Dependencies
+
+- Upgraded to `frontend@0.7.1`
+
 ## \[0.7.0]
 
 - [`bfef2c9`](https://github.com/johncarmack1984/my-tauri-updater/commit/bfef2c91931428ed67c17c93ec4135cec98e3386) Refine workflow logic
