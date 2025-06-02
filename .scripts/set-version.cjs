@@ -1,8 +1,8 @@
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+const { readFileSync, writeFileSync } = require("node:fs");
+const { join } = require("node:path");
 
 const main = (newVersion, msi = false) => {
-  // Validate version format (x.x.x or x.x.x-channel.n)
+  // // Validate version format (x.x.x or x.x.x-channel.n)
   if (
     !msi &&
     !/^\d+\.\d+\.\d+(-((dev|rc|beta|canary)\.\d+))?$/.test(newVersion)
@@ -20,7 +20,6 @@ const main = (newVersion, msi = false) => {
     );
     process.exit(1);
   }
-
   const files = [
     {
       path: "package.json",
@@ -33,7 +32,6 @@ const main = (newVersion, msi = false) => {
         content.replace(/version\s*=\s*"[^"]+"/, `version = "${newVersion}"`),
     },
   ];
-
   // Update each file
   for (const { path, update } of files) {
     const fullPath = join(process.cwd(), path);
@@ -49,11 +47,4 @@ const main = (newVersion, msi = false) => {
   }
 };
 
-const newVersion = process.argv[2];
-if (!newVersion) {
-  console.error("Usage: node .scripts/set-version.cjs <new-version>");
-  process.exit(1);
-}
-main(newVersion);
-
-export default main;
+module.exports = (newVersion, msi = false) => main(newVersion, msi);

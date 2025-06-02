@@ -1,5 +1,5 @@
-import { execSync } from "node:child_process";
-import getVersion from "./get-version.cjs";
+const { execSync } = require("node:child_process");
+const getVersion = require("./get-version.cjs");
 
 const getReleaseNumber = () => {
   try {

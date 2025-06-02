@@ -30,6 +30,6 @@ const fn = () => ({
     })),
 });
 
-console.log(JSON.stringify(fn(), () => {}, 2));
+console.log("\npackages-published\n", fn());
 
 module.exports = () => fn();

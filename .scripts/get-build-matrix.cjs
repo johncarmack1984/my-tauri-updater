@@ -6,6 +6,9 @@ const fs = require("node:fs");
 
 const getReleaseChannel = () => {
   const loc = path.resolve(__dirname, "../.changes/pre.json");
+  if (!fs.existsSync(loc)) {
+    return "stable";
+  }
   const data = fs.readFileSync(loc, { encoding: "utf-8" });
   const obj = JSON.parse(data);
   const out = obj?.tag ?? "stable";
@@ -54,6 +57,6 @@ const fn = () => ({
     .flat(),
 });
 
-console.log(fn());
+console.log("\nbuild-matrix\n", fn());
 
 module.exports = () => fn();
