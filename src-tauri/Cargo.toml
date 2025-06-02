@@ -1,6 +1,6 @@
 [package]
 name = "my-tauri-updater"
-version = "0.5.7"
+version = "0.6.0-canary.0"
 description = "A Tauri App"
 authors = ["John Carmack"]
 edition = "2024"
