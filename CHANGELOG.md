@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.7.0]
+
+- [`bfef2c9`](https://github.com/johncarmack1984/my-tauri-updater/commit/bfef2c91931428ed67c17c93ec4135cec98e3386) Refine workflow logic
+
 ## \[0.6.1]
 
 - [\`\`](https://github.com/johncarmack1984/my-tauri-updater/commit/undefined) Better formatting for the left sidebar, less repeated info
