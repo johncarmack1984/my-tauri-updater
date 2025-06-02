@@ -1,4 +1,6 @@
 {
   "tag": "canary",
-  "changes": ["generalize-workflows.md"]
+  "changes": [
+    ".changes/generalize-workflows.md"
+  ]
 }
