@@ -1,5 +1,9 @@
 # Changelog
 
+## \[0.6.0-canary.0]
+
+- [`426760f`](https://github.com/johncarmack1984/my-tauri-updater/commit/426760f412a5622b4ef956cde869f15826e36b0f) Further refine workflow behaviors considering what a monorepo with interdependendent packages might look like.
+
 ## \[0.5.7]
 
 - [`c038bf4`](https://github.com/johncarmack1984/my-tauri-updater/commit/c038bf43dd2c26682bfc7699f616cf2065f1635b) Generalize post-publish job
