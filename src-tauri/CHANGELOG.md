@@ -1,5 +1,14 @@
 # Changelog
 
+## \[0.6.0]
+
+- [`959b554`](https://github.com/johncarmack1984/my-tauri-updater/commit/959b554c3cf4dfc478ab9701f2e6bdb0182abb8d) Further refine workflow behaviors considering what a monorepo with interdependendent packages might look like.
+- [`9198996`](https://github.com/johncarmack1984/my-tauri-updater/commit/91989969a46af6921a9e1c035c40a10990f1560d) Take new workflows stable.
+
+### Dependencies
+
+- Upgraded to `frontend@0.6.0`
+
 ## \[0.5.7]
 
 - [`c038bf4`](https://github.com/johncarmack1984/my-tauri-updater/commit/c038bf43dd2c26682bfc7699f616cf2065f1635b) Generalize post-publish job
