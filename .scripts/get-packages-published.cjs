@@ -20,13 +20,22 @@ const getLatest = (packageName) =>
     .trim()
     .replace(`${aliasMap[packageName]}-v`, "");
 
+const getNext = (packageName) =>
+  child_process
+    .execSync(
+      `npx covector status | awk -F'${aliasMap[packageName]}@' '{print $2}' | tail -n 1 | xargs`,
+      { encoding: "utf-8" }
+    )
+    .trim()
+    .replace(`${aliasMap[packageName]}-v`, "");
+
 const fn = () => ({
   include: (process.env.PACKAGES ?? "")
     .split(",")
     .filter((e) => e in pushMap)
     .map((e) => ({
       package: e,
-      version: getLatest(e),
+      version: getNext(e),
     })),
 });
 
