@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars (gitignored) and fill in real values.
+# These are the principals allowed to list/write the updater bucket — the account
+# root plus whatever admin/deploy identity manages it.
+admin_principal_arns = [
+  "arn:aws:iam::<ACCOUNT_ID>:root",
+  "arn:aws:iam::<ACCOUNT_ID>:user/<ADMIN_USER>",
+]
